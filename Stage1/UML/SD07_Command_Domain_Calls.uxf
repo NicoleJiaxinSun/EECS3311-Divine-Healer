@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>1500</w><h>1100</h></coordinates><panel_attributes>title=SD07 - Shared Domain Calls after Rule Validation
+obj=CommandExecutor~x
+obj=InspectCommand~i
+obj=AllocateCommand~a
+obj=IssueOrderCommand~o
+obj=LaborRegister~r
+obj=Inventory~v
+ref=x v:SD01 creates and validates the command before this fragment
+combinedFragment=alt~type x v
+x:[INSPECT labor record]
+x-&gt;&gt;&gt;i:execute(state)
+i-&gt;&gt;&gt;r:inspect(householdId)
+r.&gt;i:record findings
+i-&gt;&gt;&gt;i +:record discovered evidence in GameState
+tick=1
+i.&gt;x:ActionResult
+..=type
+x:[ALLOCATE resource]
+x-&gt;&gt;&gt;a:execute(state)
+a-&gt;&gt;&gt;v:consume(resource, amount)
+v.&gt;a:resource deduction complete
+a.&gt;x:ActionResult
+..=type
+x:[ISSUE_ORDER]
+x-&gt;&gt;&gt;o:execute(state)
+combinedFragment=alt~op o r
+o:[REQUEST or APPROVE]
+o-&gt;&gt;&gt;o +:update order status in GameState
+tick=1
+..=op
+o:[EXECUTE approved record correction]
+o-&gt;&gt;&gt;r:correct(householdId, value)
+r.&gt;o:record corrected
+o-&gt;&gt;&gt;o +:mark order executed
+tick=1
+--=op
+o.&gt;x:ActionResult
+--=type
+ref=x v:SD04 applies political consequences, event progress and history</panel_attributes><additional_attributes /></element></diagram>

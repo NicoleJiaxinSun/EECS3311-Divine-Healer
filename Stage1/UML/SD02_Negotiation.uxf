@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>20</x>
+      <y>20</y>
+      <w>870</w>
+      <h>610</h>
+    </coordinates>
+    <panel_attributes>title=SD02 - Deterministic Negotiation
+obj=CommandExecutor~x
+obj=TalkCommand~t
+obj=NPC~n
+obj=NegotiationStrategy~s
+x-&gt;&gt;&gt;t:execute(state)
+t-&gt;&gt;&gt;n:negotiate(proposal, state)
+n-&gt;&gt;&gt;s:evaluate(npc, proposal, state)
+s.&gt;n:NegotiationResult
+n.&gt;t:NegotiationResult
+combinedFragment=alt~result x s
+t:[accepted]
+t.&gt;x:success result
+..=result
+t:[rejected]
+t.&gt;x:failure result and reason
+--=result</panel_attributes>
+    <additional_attributes />
+  </element>
+</diagram>

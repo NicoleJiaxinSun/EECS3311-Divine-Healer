@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>950</w><h>950</h></coordinates><panel_attributes>title=SD04B - Resolve Event and Activate Next
+obj=EventManager~e
+obj=PoliticalEvent~p
+obj=GameRules~r
+obj=Next PoliticalEvent~n
+e-&gt;&gt;&gt;e +:getCurrentEvent()
+tick=1
+e-&gt;&gt;&gt;p:handleAction(result)
+e-&gt;&gt;&gt;r:evaluateOutcome(event, state)
+r.&gt;e:optional outcome
+combinedFragment=opt~outcome e n
+e:[outcome present]
+e-&gt;&gt;&gt;p:finish(outcome, failed)
+e-&gt;&gt;&gt;p:isTerminal()
+p.&gt;e:true
+e-&gt;&gt;&gt;e +:activateNext()
+tick=1
+combinedFragment=opt~next e n
+e:[next event exists]
+e-&gt;&gt;&gt;n:activate()
+--=next
+--=outcome
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

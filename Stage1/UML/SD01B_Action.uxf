@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>1050</w><h>900</h></coordinates><panel_attributes>title=SD01B - Validate, Execute and Display Result
+obj=GameController~c
+obj=CommandExecutor~x
+obj=GameRules~r
+obj=GameCommand~cmd
+obj=GameGUI~g
+c-&gt;&gt;&gt;x:execute(command)
+x-&gt;&gt;&gt;r:validate(proposal, state)
+r.&gt;x:validation
+combinedFragment=alt~valid x cmd
+x:[valid]
+x-&gt;&gt;&gt;cmd:execute(state)
+ref=x cmd:SD02 / SD07
+cmd.&gt;x:ActionResult
+..=valid
+x:[invalid]
+x-&gt;&gt;&gt;x +:build rejection result
+tick=1
+--=valid
+ref=x cmd:SD04: consequences
+x.&gt;c:ActionResult
+c.&gt;g:ActionResult
+g-&gt;&gt;&gt;g +:displayResult()
+tick=1
+fontsize=10</panel_attributes><additional_attributes /></element></diagram>

@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLGeneric</id><coordinates><x>20</x><y>10</y><w>870</w><h>45</h></coordinates><panel_attributes>CD01C | Observers, Event State and Persistence
+fontsize=20
+halign=left</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>85</y><w>235</w><h>141</h></coordinates><panel_attributes>CommandExecutor
+--
+-state: GameState
+-listeners: List&lt;Listener&gt;
+--
++execute()
+-notifyListeners()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>85</y><w>235</w><h>123</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+GameEventListener
+--
+
+--
++onGameEvent()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>85</y><w>235</w><h>141</h></coordinates><panel_attributes>GameState
+--
+-evidenceIds: Set&lt;String&gt;
+-events: List&lt;Event&gt;
+-history: List&lt;Result&gt;
+--
++toPlayerContext()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>281</y><w>235</w><h>105</h></coordinates><panel_attributes>PoliticalSystem
+--
+-state: GameState
+--
++onGameEvent()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>281</y><w>235</w><h>141</h></coordinates><panel_attributes>EventManager
+--
+-state: GameState
+--
++onGameEvent()
++getCurrentEvent()
+-activateNext()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>281</y><w>235</w><h>105</h></coordinates><panel_attributes>HistoryRecorder
+--
+-state: GameState
+--
++onGameEvent()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>477</y><w>235</w><h>85</h></coordinates><panel_attributes>LockedState
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>477</y><w>235</w><h>195</h></coordinates><panel_attributes>PoliticalEvent
+--
+-state: EventState
+-progressFacts: Set&lt;String&gt;
+-outcome: String
+--
++activate()
++handleAction()
++finish()
++isTerminal()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>477</y><w>235</w><h>85</h></coordinates><panel_attributes>ResolvedState
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>727</y><w>235</w><h>85</h></coordinates><panel_attributes>ActiveState
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>727</y><w>235</w><h>177</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+EventState
+--
+
+--
++activate()
++handleAction()
++finish()
++isTerminal()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>727</y><w>235</w><h>85</h></coordinates><panel_attributes>FailedState
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>959</y><w>235</w><h>249</h></coordinates><panel_attributes>GameController
+--
+-state: GameState
+--
++submitAction()
++submitGoal()
++approvePlan()
++executePlan()
++saveGame()
++loadGame()
++getState()
++getHistory()
++generateRecap()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>959</y><w>235</w><h>141</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+GameStateRepository
+--
+
+--
++save()
++load()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>959</y><w>235</w><h>123</h></coordinates><panel_attributes>JsonGameStateRepository
+--
+
+--
++save()
++load()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>Relation</id><coordinates><x>255</x><y>136</y><w>75</w><h>20</h></coordinates><panel_attributes>lt=-&gt;
+m1=1
+m2=3
+fontsize=11</panel_attributes><additional_attributes>10;10;65;10</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>198</y><w>310</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;300;63;300;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>198</y><w>20</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;10;63;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>198</y><w>310</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>300;83;300;63;10;63;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>412</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=.&gt;
+current event
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>662</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+m2=1
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>552</y><w>310</w><h>185</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;10;155;300;155;300;175</additional_attributes></element><element><id>Relation</id><coordinates><x>255</x><y>759</y><w>75</w><h>20</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;65;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>552</y><w>310</w><h>185</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>300;10;300;155;10;155;10;175</additional_attributes></element><element><id>Relation</id><coordinates><x>545</x><y>759</y><w>75</w><h>66</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>65;10;10;56</additional_attributes></element><element><id>Relation</id><coordinates><x>255</x><y>1019</y><w>75</w><h>20</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;65;10</additional_attributes></element><element><id>Relation</id><coordinates><x>545</x><y>1010</y><w>75</w><h>29</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>65;10;10;19</additional_attributes></element><element><id>UMLNote</id><coordinates><x>30</x><y>1263</y><w>815</w><h>115</h></coordinates><panel_attributes>GameState owns exactly 4 PoliticalEvents. All three listeners reference GameState.
+Notification order: PoliticalSystem -&gt; EventManager -&gt; HistoryRecorder.
+Events run E1 -&gt; E2 -&gt; E3 -&gt; E4; each has one current EventState.
+EventManager also uses GameRules; Controller holds the current GameState.
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLGeneric</id><coordinates><x>20</x><y>10</y><w>870</w><h>45</h></coordinates><panel_attributes>CD01B | Commands, Domain and NPC Strategy
+fontsize=20
+halign=left</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>85</y><w>235</w><h>141</h></coordinates><panel_attributes>CommandExecutor
+--
+-state: GameState
+-listeners: List&lt;Listener&gt;
+--
++execute()
+-notifyListeners()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>85</y><w>235</w><h>123</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+GameCommand
+--
+
+--
++execute()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>85</y><w>235</w><h>123</h></coordinates><panel_attributes>GameRules
+--
+
+--
++validate()
++evaluateOutcome()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>281</y><w>235</w><h>85</h></coordinates><panel_attributes>InspectCommand
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>281</y><w>235</w><h>85</h></coordinates><panel_attributes>TalkCommand
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>281</y><w>235</w><h>85</h></coordinates><panel_attributes>AllocateCommand
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>421</y><w>235</w><h>123</h></coordinates><panel_attributes>LaborRegister
+--
+-entries: Map&lt;String,Integer&gt;
+--
++inspect()
++correct()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>421</y><w>235</w><h>177</h></coordinates><panel_attributes>NPC
+--
+-relationshipToPlayer: int
+-knowledgeIds: Set&lt;String&gt;
+-strategy: NegotiationStrategy
+--
++negotiate()
++learn()
++adjustRelationship()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>421</y><w>235</w><h>123</h></coordinates><panel_attributes>Inventory
+--
+-quantities: Map
+  &lt;ResourceType, Integer&gt;
+--
++consume()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>653</y><w>235</w><h>85</h></coordinates><panel_attributes>IssueOrderCommand
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>653</y><w>235</w><h>123</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+NegotiationStrategy
+--
+
+--
++evaluate()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>653</y><w>235</w><h>141</h></coordinates><panel_attributes>GameState
+--
+-evidenceIds: Set&lt;String&gt;
+-events: List&lt;Event&gt;
+-history: List&lt;Result&gt;
+--
++toPlayerContext()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>849</y><w>235</w><h>85</h></coordinates><panel_attributes>CooperativeStrategy
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>849</y><w>235</w><h>85</h></coordinates><panel_attributes>SelfInterestedStrategy
+--
+
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>849</y><w>235</w><h>123</h></coordinates><panel_attributes>&lt;&lt;record&gt;&gt;
+ActionResult
+--
+success: boolean
+reason: String
+facts: Map&lt;String,String&gt;
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>Relation</id><coordinates><x>255</x><y>136</y><w>75</w><h>20</h></coordinates><panel_attributes>lt=.&gt;
+execute
+fontsize=11</panel_attributes><additional_attributes>10;10;65;10</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>198</y><w>600</w><h>63</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;28;10;53;590;53;590;10</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>198</y><w>310</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;300;63;300;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>198</y><w>20</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;10;63;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>198</y><w>310</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>300;83;300;63;10;63;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>356</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=.&gt;
+inspect
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>356</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=.&gt;
+negotiate
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>717</x><y>356</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=.&gt;
+consume
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>588</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+m2=1
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>766</y><w>310</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;300;63;300;10</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>766</y><w>20</w><h>93</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;83;10;63;10;63;10;10</additional_attributes></element><element><id>UMLNote</id><coordinates><x>30</x><y>1027</y><w>815</w><h>115</h></coordinates><panel_attributes>IssueOrderCommand also implements GameCommand and uses LaborRegister.
+GameState owns 1 Inventory, 1 LaborRegister and 0..* NPCs/results/plans.
+It stores player rank, politics and discovered evidence. Commands use GameState.
+Java decides results; NPC strategy decisions are deterministic.
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

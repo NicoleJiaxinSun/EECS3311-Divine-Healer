@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>950</w><h>950</h></coordinates><panel_attributes>title=SD03B - Execute Approved Steps
+obj=GameController~c
+obj=AgentExecutor~a
+obj=AgentPlan~p
+obj=CommandFactory~f
+obj=CommandExecutor~x
+c-&gt;&gt;&gt;a:executePlan(plan)
+a-&gt;&gt;&gt;p:start()
+combinedFragment=loop~steps a x
+a:[RUNNING and steps remain]
+a-&gt;&gt;&gt;p:nextStep()
+p.&gt;a:proposal
+a-&gt;&gt;&gt;f:create(proposal)
+f.&gt;a:command
+a-&gt;&gt;&gt;x:execute(command)
+ref=a x:SD01B / SD04
+x.&gt;a:ActionResult
+combinedFragment=alt~result a p
+a:[success]
+a-&gt;&gt;&gt;p:advance()
+..=result
+a:[failure]
+a-&gt;&gt;&gt;p:pause(reason)
+a-&gt;&gt;&gt;a +:no later steps execute
+tick=1
+--=result
+--=steps
+combinedFragment=opt~done a p
+a:[all steps succeeded]
+a-&gt;&gt;&gt;p:complete()
+--=done
+a.&gt;c:results and status
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

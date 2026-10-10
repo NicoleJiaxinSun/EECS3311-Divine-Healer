@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>1600</w><h>1080</h></coordinates><panel_attributes>title=SD06 - History Review and Optional AI Recap
+obj=Player~u ACTOR
+obj=GameGUI~g
+obj=GameController~c
+obj=GameState~s
+obj=LLMClient~l
+u-&gt;&gt;&gt;g:open history
+g-&gt;&gt;&gt;c:getHistory()
+c.&gt;g:recorded action results
+g-&gt;&gt;&gt;g +:displayHistory(history)
+tick=1
+combinedFragment=opt~recap u l
+u:[request AI recap]
+u-&gt;&gt;&gt;g:generate recap
+g-&gt;&gt;&gt;c:generateRecap()
+c-&gt;&gt;&gt;s:toPlayerContext()
+s.&gt;c:visible context and recorded history
+c-&gt;&gt;&gt;l:generate(recap prompt)
+l.&gt;c:model text or error
+combinedFragment=alt~result c l
+c:[valid response]
+c.&gt;g:recap text
+g-&gt;&gt;&gt;g +:displayRecap(text)
+tick=1
+..=result
+c:[model failure]
+c.&gt;g:recap unavailable - history remains accessible
+--=result
+--=recap</panel_attributes><additional_attributes /></element></diagram>

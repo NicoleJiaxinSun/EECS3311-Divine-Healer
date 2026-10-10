@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>1050</w><h>890</h></coordinates><panel_attributes>title=SD01A - Interpret Action and Create Command
+obj=Player~u ACTOR
+obj=GameGUI~g
+obj=GameController~c
+obj=ActionInterpreter~i
+obj=LLMClient~l
+obj=CommandFactory~f
+u-&gt;&gt;&gt;g:enter action
+g-&gt;&gt;&gt;c:submitAction(text)
+c-&gt;&gt;&gt;i:interpret(text, context)
+i-&gt;&gt;&gt;l:generate(prompt)
+l.&gt;i:model text or error
+i-&gt;&gt;&gt;i +:parse and check response
+tick=1
+combinedFragment=alt~response c f
+i:[valid supported proposal]
+i.&gt;c:ActionProposal
+c-&gt;&gt;&gt;f:create(proposal)
+f.&gt;c:command
+ref=c f:SD01B: execute command
+..=response
+i:[invalid response or AI failure]
+i.&gt;c:error - no action executed
+c.&gt;g:error or clarification request
+--=response
+fontsize=10</panel_attributes><additional_attributes /></element></diagram>

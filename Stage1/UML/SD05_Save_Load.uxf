@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>20</x>
+      <y>20</y>
+      <w>1200</w>
+      <h>1000</h>
+    </coordinates>
+    <panel_attributes>title=SD05 - Save and Load Game
+obj=Player~u ACTOR
+obj=GameGUI~ui
+obj=GameController~c
+obj=JsonGameStateRepository~repo
+combinedFragment=alt~operation u repo
+u:[save - between actions]
+u-&gt;&gt;&gt;ui:save game
+ui-&gt;&gt;&gt;c:saveGame(path)
+c-&gt;&gt;&gt;repo:save(state, path)
+repo.&gt;c:done
+c.&gt;ui:done
+..=operation
+u:[load - between actions]
+u-&gt;&gt;&gt;ui:load game
+ui-&gt;&gt;&gt;c:loadGame(path)
+c-&gt;&gt;&gt;repo:load(path)
+repo.&gt;c:restored GameState
+c-&gt;&gt;&gt;c +:replace state and rebind listeners
+tick=1
+c-&gt;&gt;&gt;c +:restore running plans as PAUSED
+tick=1
+c.&gt;ui:done
+ui-&gt;&gt;&gt;c:getState()
+c.&gt;ui:restored state
+ui-&gt;&gt;&gt;ui +:displayState(state)
+tick=1
+--=operation</panel_attributes>
+    <additional_attributes />
+  </element>
+</diagram>

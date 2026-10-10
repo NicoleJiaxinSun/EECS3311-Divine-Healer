@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>950</w><h>950</h></coordinates><panel_attributes>title=SD03A - Generate and Approve Plan
+obj=Player~u ACTOR
+obj=GameGUI~g
+obj=GameController~c
+obj=AgentPlanner~p
+obj=LLMClient~l
+obj=AgentPlan~plan
+u-&gt;&gt;&gt;g:enter goal
+g-&gt;&gt;&gt;c:submitGoal(goal)
+c-&gt;&gt;&gt;p:createPlan(goal, context)
+p-&gt;&gt;&gt;l:generate(prompt)
+l.&gt;p:model text or error
+p-&gt;&gt;&gt;p +:parse and check plan
+tick=1
+combinedFragment=alt~valid c plan
+p:[valid plan]
+p.&gt;c:draft plan
+c.&gt;g:plan
+g-&gt;&gt;&gt;g +:displayPlan()
+tick=1
+u-&gt;&gt;&gt;g:approve displayed steps
+g-&gt;&gt;&gt;c:approvePlan(id)
+c-&gt;&gt;&gt;plan:approve()
+g-&gt;&gt;&gt;c:executePlan(id)
+ref=c plan:Continue at SD03B
+..=valid
+p:[invalid plan or AI failure]
+p.&gt;c:error
+c.&gt;g:no execution
+--=valid
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

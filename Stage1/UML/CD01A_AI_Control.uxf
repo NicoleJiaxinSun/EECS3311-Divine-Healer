@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLGeneric</id><coordinates><x>20</x><y>10</y><w>870</w><h>45</h></coordinates><panel_attributes>CD01A | UI, AI and Plan Execution
+fontsize=20
+halign=left</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>85</y><w>235</w><h>195</h></coordinates><panel_attributes>&lt;&lt;boundary&gt;&gt;
+GameGUI
+--
+-controller: GameController
+--
++displayPlan()
++displayResult()
++displayState()
++displayHistory()
++displayRecap()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>85</y><w>235</w><h>249</h></coordinates><panel_attributes>GameController
+--
+-state: GameState
+--
++submitAction()
++submitGoal()
++approvePlan()
++executePlan()
++saveGame()
++loadGame()
++getState()
++getHistory()
++generateRecap()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>85</y><w>235</w><h>141</h></coordinates><panel_attributes>GameCLI
+--
+-controller: GameController
+--
++run()
++displayResult()
++displayState()
+fontsize=14</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>389</y><w>235</w><h>105</h></coordinates><panel_attributes>ActionInterpreter
+--
+-llm: LLMClient
+--
++interpret()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>389</y><w>235</w><h>105</h></coordinates><panel_attributes>AgentPlanner
+--
+-llm: LLMClient
+--
++createPlan()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>389</y><w>235</w><h>123</h></coordinates><panel_attributes>AgentExecutor
+--
+-factory: CommandFactory
+-executor: CommandExecutor
+--
++executePlan()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>567</y><w>235</w><h>123</h></coordinates><panel_attributes>&lt;&lt;interface&gt;&gt;
+LLMClient
+--
+
+--
++generate(): String
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>567</y><w>235</w><h>231</h></coordinates><panel_attributes>AgentPlan
+--
+-steps: List&lt;Proposal&gt;
+-status: PlanStatus
+-nextStepIndex: int
+--
++approve()
++start()
++nextStep()
++advance()
++pause()
++complete()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>567</y><w>235</w><h>105</h></coordinates><panel_attributes>CommandFactory
+--
+
+--
++create()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>30</x><y>853</y><w>235</w><h>105</h></coordinates><panel_attributes>DeepSeekAdapter
+--
+-model: String
+--
++generate(): String
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>320</x><y>853</y><w>235</w><h>105</h></coordinates><panel_attributes>&lt;&lt;record&gt;&gt;
+ActionProposal
+--
+type: ActionType
+targetId: String
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>UMLClass</id><coordinates><x>610</x><y>853</y><w>235</w><h>141</h></coordinates><panel_attributes>CommandExecutor
+--
+-state: GameState
+-listeners: List&lt;Listener&gt;
+--
++execute()
+-notifyListeners()
+fontsize=14
+bg=#FFFFFF</panel_attributes><additional_attributes /></element><element><id>Relation</id><coordinates><x>255</x><y>172</y><w>75</w><h>20</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;65;10</additional_attributes></element><element><id>Relation</id><coordinates><x>545</x><y>145</y><w>75</w><h>74</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>65;10;10;64</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>324</y><w>310</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>300;10;300;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>324</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>324</y><w>310</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;300;45;300;65</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>484</y><w>20</w><h>93</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;10;63;10;63;10;83</additional_attributes></element><element><id>Relation</id><coordinates><x>137</x><y>680</y><w>20</w><h>183</h></coordinates><panel_attributes>lt=.&gt;&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;173;10;153;10;153;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>717</x><y>502</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>427</x><y>788</y><w>20</w><h>75</h></coordinates><panel_attributes>lt=-&gt;
+m1=1
+m2=1..*
+fontsize=11</panel_attributes><additional_attributes>10;10;10;45;10;45;10;65</additional_attributes></element><element><id>Relation</id><coordinates><x>717</x><y>440</y><w>158</w><h>423</h></coordinates><panel_attributes>lt=-&gt;
+
+fontsize=11</panel_attributes><additional_attributes>128;10;148;10;148;393;10;393;10;413</additional_attributes></element><element><id>UMLNote</id><coordinates><x>30</x><y>1049</y><w>815</w><h>115</h></coordinates><panel_attributes>All CD01 views form one model. Repeated names denote the same class.
+Planner also uses LLMClient; executor uses AgentPlan and CommandExecutor.
+Proposal/Listener/Event/Result in generic types abbreviate ActionProposal/
+GameEventListener/PoliticalEvent/ActionResult.
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>

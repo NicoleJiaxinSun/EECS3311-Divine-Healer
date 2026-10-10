@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<diagram program="umlet" version="15.1"><zoom_level>10</zoom_level><element><id>UMLSequenceAllInOne</id><coordinates><x>20</x><y>20</y><w>950</w><h>950</h></coordinates><panel_attributes>title=SD04A - Apply Consequences and Record History
+obj=CommandExecutor~x
+obj=PoliticalSystem~p
+obj=EventManager~e
+obj=HistoryRecorder~h
+x-&gt;&gt;&gt;x +:notifyListeners(result)
+tick=1
+x-&gt;&gt;&gt;p:onGameEvent(result)
+p-&gt;&gt;&gt;p +:apply Java political facts
+tick=1
+p.&gt;x:done
+x-&gt;&gt;&gt;e:onGameEvent(result)
+ref=x h:SD04B
+e.&gt;x:done
+x-&gt;&gt;&gt;h:onGameEvent(result)
+h-&gt;&gt;&gt;h +:record success or refusal
+tick=1
+h.&gt;x:done
+fontsize=13</panel_attributes><additional_attributes /></element></diagram>
