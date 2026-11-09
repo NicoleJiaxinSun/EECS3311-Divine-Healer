@@ -76,6 +76,21 @@ retains the original finding.
 The grain stock, relief officer role, and correction order are scenario
 rules for the current playable slice.
 
+## Stage 2 - Update 4: Political events and action history
+
+Use `events` to see the four story milestones (F08). The first starts
+active and each ending unlocks the next. The sequence tracks presenting
+the mill evidence to the steward, gaining the relief appointment,
+delivering at least 3 grain, and executing the correction order. When
+an event unlocks, the game checks whether its goal is already satisfied.
+Use `event abandon` to give the active event a failed ending and continue
+to the next milestone. A finished event keeps its ending for the session.
+
+Use `history` to review accepted and refused game actions (the
+deterministic part of F11). Read-only queries and input usage errors
+stay out of the history. The command executor sends action outcomes to
+the event manager and the history recorder.
+
 ## Planned Implementation
 
 - Swing GUI and additional CLI commands

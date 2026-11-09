@@ -6,7 +6,8 @@ import java.util.Scanner;
 public final class GameCLI {
     private static final String HELP = "Commands: inspect <household>, evidence, "
             + "talk <npc>, submit <evidence-id> <npc>, appoint, "
-            + "allocate <grain-quantity> <recipient>, order <request|approve|execute>, status, help, quit";
+            + "allocate <grain-quantity> <recipient>, order <request|approve|execute>, "
+            + "events, event abandon, history, status, help, quit";
 
     public static void main(String[] args) {
         GameController controller = new GameController();
@@ -44,6 +45,21 @@ public final class GameCLI {
                     case "appoint" -> System.out.println(controller.requestAppointment().message());
                     case "allocate" -> System.out.println(allocate(controller, argument).message());
                     case "order" -> System.out.println(operateOrder(controller, argument).message());
+                    case "events" -> controller.events().forEach(System.out::println);
+                    case "event" -> {
+                        if (argument.equalsIgnoreCase("abandon")) {
+                            System.out.println(controller.abandonEvent().message());
+                        } else {
+                            System.out.println("Usage: event abandon");
+                        }
+                    }
+                    case "history" -> {
+                        var history = controller.history();
+                        if (history.isEmpty()) {
+                            System.out.println("No actions recorded.");
+                        }
+                        history.forEach(System.out::println);
+                    }
                     case "status" -> System.out.println(controller.status());
                     case "evidence" -> {
                         var evidence = controller.evidence();

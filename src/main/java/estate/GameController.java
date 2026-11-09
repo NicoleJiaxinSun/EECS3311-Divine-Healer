@@ -5,6 +5,9 @@ import java.util.Locale;
 
 final class GameController {
     private final GameState state = new GameState();
+    private final EventManager eventManager = new EventManager();
+    private final HistoryRecorder historyRecorder = new HistoryRecorder();
+    private final CommandExecutor executor = new CommandExecutor(List.of(eventManager, historyRecorder));
 
     ActionResult inspect(String householdId) {
         String target = householdId.strip().toLowerCase(Locale.ROOT);
@@ -12,30 +15,47 @@ final class GameController {
             return new ActionResult(false, "Usage: inspect <household>");
         }
 
-        GameCommand command = new InspectCommand(target);
-        return command.execute(state);
+        return execute("inspect " + target, new InspectCommand(target));
     }
 
     ActionResult requestReview(String npcId) {
-        return TalkCommand.review(npcId.toLowerCase(Locale.ROOT)).execute(state);
+        String npc = npcId.toLowerCase(Locale.ROOT);
+        return execute("talk " + npc, TalkCommand.review(npc));
     }
 
     ActionResult submitEvidence(String evidenceId, String npcId) {
-        GameCommand command = new TalkCommand(
-                npcId.toLowerCase(Locale.ROOT), evidenceId.toLowerCase(Locale.ROOT));
-        return command.execute(state);
+        String npc = npcId.toLowerCase(Locale.ROOT);
+        String evidence = evidenceId.toLowerCase(Locale.ROOT);
+        return execute("submit " + evidence + " " + npc, new TalkCommand(npc, evidence));
     }
 
     ActionResult requestAppointment() {
-        return TalkCommand.requestAppointment(state);
+        return execute("appoint", TalkCommand::requestAppointment);
     }
 
     ActionResult allocateGrain(int quantity, String recipient) {
-        return new AllocateCommand(quantity, recipient.toLowerCase(Locale.ROOT)).execute(state);
+        String target = recipient.toLowerCase(Locale.ROOT);
+        return execute("allocate " + quantity + " " + target, new AllocateCommand(quantity, target));
     }
 
     ActionResult operateOrder(IssueOrderCommand.Step step) {
-        return new IssueOrderCommand(step).execute(state);
+        return execute("order " + step.name().toLowerCase(Locale.ROOT), new IssueOrderCommand(step));
+    }
+
+    ActionResult abandonEvent() {
+        return execute("event abandon", gameState -> eventManager.abandonActive());
+    }
+
+    List<String> events() {
+        return eventManager.events();
+    }
+
+    List<String> history() {
+        return historyRecorder.history();
+    }
+
+    private ActionResult execute(String action, GameCommand command) {
+        return executor.execute(state, action, command);
     }
 
     String status() {

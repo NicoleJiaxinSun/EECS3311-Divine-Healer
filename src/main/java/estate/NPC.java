@@ -19,6 +19,10 @@ final class NPC {
         return strategy.evaluate(Set.copyOf(knownEvidence));
     }
 
+    boolean knows(String evidenceId) {
+        return knownEvidence.contains(evidenceId);
+    }
+
     ActionResult learn(String evidenceId) {
         if (!relevantEvidence.contains(evidenceId)) {
             return new ActionResult(false, name + ": This evidence does not concern my duties.");
