@@ -125,5 +125,18 @@ recap
 
 The AI commands send the request, visible game status, and recent action
 records as context where applicable. Game state and the current plan are
-in-memory. Swing, save/load (F12), and the course's KUMA validation remain
-outside this CLI milestone.
+in-memory. Save/load (F12) and the course's KUMA validation remain to be implemented.
+
+## Swing desktop interface
+
+After compiling with the setup above, launch the desktop window:
+
+```sh
+java -cp "out:gson-2.11.0.jar" estate.GameGUI
+```
+
+Choose **Command** and enter a command such as `inspect mill` or
+`submit mill steward`. Use the shortcuts for status, evidence, events,
+history, and plan controls. Choose **AI action** or **AI goal** to enter
+natural-language text. The window uses the same game rules and API key
+configuration as the CLI, with a separate game session each time it starts.
