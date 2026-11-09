@@ -124,8 +124,7 @@ recap
   available when the AI call fails.
 
 The AI commands send the request, visible game status, and recent action
-records as context where applicable. Game state and the current plan are
-in-memory. Save/load (F12) and the course's KUMA validation remain to be implemented.
+records as context where applicable. The course's KUMA validation remains to be completed.
 
 ## Swing desktop interface
 
@@ -140,3 +139,15 @@ Choose **Command** and enter a command such as `inspect mill` or
 history, and plan controls. Choose **AI action** or **AI goal** to enter
 natural-language text. The window uses the same game rules and API key
 configuration as the CLI, with a separate game session each time it starts.
+
+## Save and load a game (F12)
+
+Use `save my game.json` and `load my game.json` in the CLI, or use
+the **Save** and **Load** buttons in the desktop window. The file
+preserves game progress, evidence, action history, and the current
+plan. Loading rebuilds progress from the saved game actions and
+restores the plan at its saved step. A previously approved plan
+requires approval again after loading.
+
+Saving to an existing CLI path replaces that file. A malformed or
+unsupported save reports an error and preserves the current session.

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class AgentPlan {
+    static final int MAX_STEPS = 8;
+
+    record Snapshot(List<String> steps, Status status, Integer nextStepIndex) {}
+
     enum Status {
         DRAFT, APPROVED, PAUSED, COMPLETED, CANCELED
     }
@@ -14,6 +18,28 @@ final class AgentPlan {
 
     AgentPlan(List<CommandFactory.Action> steps) {
         this.steps = List.copyOf(steps);
+    }
+
+    Snapshot snapshot() {
+        return new Snapshot(steps.stream().map(CommandFactory.Action::text).toList(), status, nextStepIndex);
+    }
+
+    static AgentPlan restore(Snapshot saved) {
+        if (saved.steps() == null || saved.status() == null || saved.nextStepIndex() == null) {
+            throw new IllegalArgumentException("Incomplete saved plan.");
+        }
+        int size = saved.steps().size();
+        int cursor = saved.nextStepIndex();
+        if (size == 0 || size > MAX_STEPS || cursor < 0 || cursor > size
+                || (saved.status() == Status.COMPLETED) != (cursor == size)
+                || (saved.status() == Status.DRAFT && cursor != 0)) {
+            throw new IllegalArgumentException("Invalid saved plan progress.");
+        }
+
+        AgentPlan restored = new AgentPlan(saved.steps().stream().map(GameAgent::parsePlanStep).toList());
+        restored.nextStepIndex = cursor;
+        restored.status = saved.status() == Status.APPROVED ? Status.PAUSED : saved.status();
+        return restored;
     }
 
     boolean finished() {

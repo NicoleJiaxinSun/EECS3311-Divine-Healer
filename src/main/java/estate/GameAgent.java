@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 final class GameAgent {
-    private static final int MAX_STEPS = 8;
     private static final Pattern SUPPORTED_ACTION = Pattern.compile(
             "inspect (mill|manor)|talk (steward|healer)|submit mill steward|appoint"
             + "|allocate (10|[1-9]) mill|order (request|approve|execute)");
@@ -23,13 +22,22 @@ final class GameAgent {
             return an empty steps array. Return JSON only, for example {"steps":["inspect mill"]}.
             """;
 
-    private final GameController controller;
+    private GameController controller;
     private final LLMClient client;
     private AgentPlan plan;
 
     GameAgent(GameController controller, LLMClient client) {
         this.controller = controller;
         this.client = client;
+    }
+
+    AgentPlan currentPlan() {
+        return plan;
+    }
+
+    void restore(GameController controller, AgentPlan plan) {
+        this.controller = controller;
+        this.plan = plan;
     }
 
     String act(String input) throws IOException {
@@ -40,7 +48,7 @@ final class GameAgent {
         if (plan != null && !plan.finished()) {
             return List.of("Finish or cancel the current plan before drafting another.");
         }
-        plan = new AgentPlan(propose(goal, MAX_STEPS));
+        plan = new AgentPlan(propose(goal, AgentPlan.MAX_STEPS));
         return plan.describe();
     }
 
@@ -90,16 +98,23 @@ final class GameAgent {
         List<CommandFactory.Action> actions = new ArrayList<>();
         for (JsonElement step : steps.getAsJsonArray()) {
             try {
-                CommandFactory.Action action = CommandFactory.parse(requiredString(step));
-                if (!SUPPORTED_ACTION.matcher(action.text()).matches()) {
-                    throw new IOException("AI proposed an unsupported game command.");
-                }
-                actions.add(action);
+                actions.add(parsePlanStep(requiredString(step)));
             } catch (IllegalArgumentException exception) {
                 throw new IOException("AI proposed an invalid game command.");
             }
         }
         return actions;
+    }
+
+    static CommandFactory.Action parsePlanStep(String step) {
+        if (step == null || step.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException("Invalid plan command.");
+        }
+        CommandFactory.Action action = CommandFactory.parse(step);
+        if (!SUPPORTED_ACTION.matcher(action.text()).matches()) {
+            throw new IllegalArgumentException("Unsupported plan command.");
+        }
+        return action;
     }
 
     private static String requiredString(JsonElement value) throws IOException {

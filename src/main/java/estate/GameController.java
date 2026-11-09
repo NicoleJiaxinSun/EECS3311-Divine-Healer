@@ -20,6 +20,10 @@ final class GameController {
         return eventManager.events();
     }
 
+    List<String> recordedActions() {
+        return historyRecorder.recordedActions();
+    }
+
     List<String> history() {
         return historyRecorder.history();
     }

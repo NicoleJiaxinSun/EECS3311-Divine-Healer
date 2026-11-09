@@ -6,10 +6,13 @@ import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -42,7 +45,7 @@ public final class GameGUI {
         JPanel content = new JPanel(new BorderLayout(8, 8));
         content.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        JPanel shortcuts = new JPanel(new GridLayout(2, 5, 6, 6));
+        JPanel shortcuts = new JPanel(new GridLayout(3, 4, 6, 6));
         addButton(shortcuts, "Status", () -> run("status"));
         addButton(shortcuts, "Evidence", () -> run("evidence"));
         addButton(shortcuts, "Events", () -> run("events"));
@@ -53,6 +56,8 @@ public final class GameGUI {
         addButton(shortcuts, "Run plan", () -> run("plan run"));
         addButton(shortcuts, "Cancel plan", () -> run("plan cancel"));
         addButton(shortcuts, "Help", () -> run("help"));
+        addButton(shortcuts, "Save", () -> chooseSaveFile(frame, true));
+        addButton(shortcuts, "Load", () -> chooseSaveFile(frame, false));
         content.add(shortcuts, BorderLayout.NORTH);
 
         output.setEditable(false);
@@ -106,7 +111,28 @@ public final class GameGUI {
         run(prefix + text);
     }
 
+    private void chooseSaveFile(JFrame frame, boolean saving) {
+        JFileChooser chooser = new JFileChooser();
+        int choice = saving ? chooser.showSaveDialog(frame) : chooser.showOpenDialog(frame);
+        if (choice != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        var file = chooser.getSelectedFile();
+        if (saving && file.exists() && JOptionPane.showConfirmDialog(frame,
+                "Replace the existing file?", "Save game", JOptionPane.YES_NO_OPTION)
+                != JOptionPane.YES_OPTION) {
+            return;
+        }
+        String path = file.getPath();
+        run((saving ? "save " : "load ") + path,
+                () -> List.of(saving ? session.save(path) : session.load(path)));
+    }
+
     private void run(String command) {
+        run(command, () -> session.run(command));
+    }
+
+    private void run(String command, Supplier<List<String>> work) {
         if (busy) {
             return;
         }
@@ -115,7 +141,7 @@ public final class GameGUI {
         new SwingWorker<List<String>, Void>() {
             @Override
             protected List<String> doInBackground() {
-                return session.run(command);
+                return work.get();
             }
 
             @Override

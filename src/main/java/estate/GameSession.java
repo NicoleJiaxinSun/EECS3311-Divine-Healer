@@ -1,6 +1,7 @@
 package estate;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 
@@ -10,9 +11,10 @@ final class GameSession {
             + "talk <npc>, submit <evidence-id> <npc>, appoint, "
             + "allocate <grain-quantity> <recipient>, order <request|approve|execute>, "
             + "events, event abandon, history, status, act <text>, goal <text>, "
-            + "plan <show|approve|run|cancel>, recap, help";
+            + "plan <show|approve|run|cancel>, recap, save <path>, load <path>, help";
 
-    private final GameController controller = new GameController();
+    private GameController controller = new GameController();
+    private final JsonGameStateRepository repository = new JsonGameStateRepository();
     private final GameAgent agent;
 
     GameSession(LLMClient client) {
@@ -42,6 +44,8 @@ final class GameSession {
                 case "history" -> display(controller.history(), "No actions recorded.");
                 case "status" -> List.of(controller.status());
                 case "evidence" -> display(controller.evidence(), "No evidence discovered.");
+                case "save" -> List.of(save(argument));
+                case "load" -> List.of(load(argument));
                 case "help" -> List.of(HELP);
                 default -> List.of("Unknown command. Type help for available commands.");
             };
@@ -49,6 +53,32 @@ final class GameSession {
             return List.of(exception.getMessage());
         } catch (IOException exception) {
             return List.of("AI unavailable: " + exception.getMessage());
+        }
+    }
+
+    String save(String file) {
+        if (file.isBlank()) {
+            return "Usage: save <path>";
+        }
+        try {
+            repository.save(Path.of(file), controller, agent.currentPlan());
+            return "Game saved: " + file;
+        } catch (IOException | IllegalArgumentException | SecurityException exception) {
+            return "Save failed: " + exception.getMessage();
+        }
+    }
+
+    String load(String file) {
+        if (file.isBlank()) {
+            return "Usage: load <path>";
+        }
+        try {
+            var restored = repository.load(Path.of(file));
+            controller = restored.controller();
+            agent.restore(controller, restored.plan());
+            return "Game loaded: " + file;
+        } catch (IOException | IllegalArgumentException | SecurityException exception) {
+            return "Load failed: " + exception.getMessage();
         }
     }
 

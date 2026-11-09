@@ -17,6 +17,10 @@ final class HistoryRecorder implements GameEventListener {
         entries.add(new Entry(action, result));
     }
 
+    List<String> recordedActions() {
+        return entries.stream().map(Entry::action).toList();
+    }
+
     List<String> history() {
         return entries.stream().map(Entry::display).toList();
     }
