@@ -7,6 +7,9 @@ import java.util.Set;
 
 final class GameState {
     private final LaborRegister laborRegister;
+    private final Inventory inventory = new Inventory();
+    private boolean reliefOfficer;
+    private IssueOrderCommand.Status correctionOrder = IssueOrderCommand.Status.NONE;
     private final Map<String, String> discoveredEvidence = new LinkedHashMap<>();
 
     private final Map<String, NPC> npcs = Map.of(
@@ -42,6 +45,30 @@ final class GameState {
 
     boolean hasEvidence(String evidenceId) {
         return discoveredEvidence.containsKey(evidenceId);
+    }
+
+    String evidenceFor(String evidenceId) {
+        return discoveredEvidence.get(evidenceId);
+    }
+
+    Inventory inventory() {
+        return inventory;
+    }
+
+    boolean isReliefOfficer() {
+        return reliefOfficer;
+    }
+
+    void appointReliefOfficer() {
+        reliefOfficer = true;
+    }
+
+    IssueOrderCommand.Status correctionOrder() {
+        return correctionOrder;
+    }
+
+    void setCorrectionOrder(IssueOrderCommand.Status status) {
+        correctionOrder = status;
     }
 
     List<String> evidence() {

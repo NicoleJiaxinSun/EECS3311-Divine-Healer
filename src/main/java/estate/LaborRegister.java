@@ -1,5 +1,6 @@
 package estate;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -9,8 +10,12 @@ final class LaborRegister {
     private final Set<String> publicRecords;
 
     LaborRegister(Map<String, String> entries, Set<String> publicRecords) {
-        this.entries = Map.copyOf(entries);
+        this.entries = new HashMap<>(entries);
         this.publicRecords = Set.copyOf(publicRecords);
+    }
+
+    void correctMillCharge() {
+        entries.replace("mill", "The mill household's duplicate charge has been removed.");
     }
 
     boolean contains(String householdId) {

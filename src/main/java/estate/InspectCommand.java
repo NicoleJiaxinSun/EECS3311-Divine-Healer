@@ -17,6 +17,9 @@ record InspectCommand(String householdId) implements GameCommand {
         if (state.recordEvidence(householdId, evidence)) {
             return new ActionResult(true, "Evidence discovered: " + evidence);
         }
-        return new ActionResult(true, "Already discovered: " + evidence);
+        if (evidence.equals(state.evidenceFor(householdId))) {
+            return new ActionResult(true, "Already discovered: " + evidence);
+        }
+        return new ActionResult(true, "Current record: " + evidence);
     }
 }

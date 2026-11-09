@@ -26,6 +26,25 @@ final class GameController {
         return command.execute(state);
     }
 
+    ActionResult requestAppointment() {
+        return TalkCommand.requestAppointment(state);
+    }
+
+    ActionResult allocateGrain(int quantity, String recipient) {
+        return new AllocateCommand(quantity, recipient.toLowerCase(Locale.ROOT)).execute(state);
+    }
+
+    ActionResult operateOrder(IssueOrderCommand.Step step) {
+        return new IssueOrderCommand(step).execute(state);
+    }
+
+    String status() {
+        String rank = state.isReliefOfficer() ? "relief officer" : "visitor";
+        return "Rank: " + rank + " | Grain: " + state.inventory().grain()
+                + " | Grain delivered to mill: " + state.inventory().millGrainDelivered()
+                + " | Correction order: " + state.correctionOrder();
+    }
+
     List<String> evidence() {
         return state.evidence();
     }
