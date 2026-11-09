@@ -1,5 +1,6 @@
 package estate;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -7,10 +8,12 @@ public final class GameCLI {
     private static final String HELP = "Commands: inspect <household>, evidence, "
             + "talk <npc>, submit <evidence-id> <npc>, appoint, "
             + "allocate <grain-quantity> <recipient>, order <request|approve|execute>, "
-            + "events, event abandon, history, status, help, quit";
+            + "events, event abandon, history, status, act <text>, goal <text>, "
+            + "plan <show|approve|run|cancel>, recap, help, quit";
 
     public static void main(String[] args) {
         GameController controller = new GameController();
+        GameAgent agent = new GameAgent(controller, new DeepSeekAdapter(System.getenv("DEEPSEEK_API_KEY")));
         try (Scanner input = new Scanner(System.in)) {
             System.out.println("The Divine Healer's Estate");
             System.out.println(HELP);
@@ -23,28 +26,11 @@ public final class GameCLI {
                 String[] parts = line.split("\\s+", 2);
                 String argument = parts.length == 2 ? parts[1] : "";
                 switch (parts[0].toLowerCase(Locale.ROOT)) {
-                    case "inspect" -> {
-                        ActionResult result = controller.inspect(argument);
-                        System.out.println(result.message());
-                    }
-                    case "talk" -> {
-                        if (argument.isEmpty()) {
-                            System.out.println("Usage: talk <npc>");
-                        } else {
-                            System.out.println(controller.requestReview(argument).message());
-                        }
-                    }
-                    case "submit" -> {
-                        String[] submission = argument.split("\\s+");
-                        if (submission.length != 2) {
-                            System.out.println("Usage: submit <evidence-id> <npc>");
-                        } else {
-                            System.out.println(controller.submitEvidence(submission[0], submission[1]).message());
-                        }
-                    }
-                    case "appoint" -> System.out.println(controller.requestAppointment().message());
-                    case "allocate" -> System.out.println(allocate(controller, argument).message());
-                    case "order" -> System.out.println(operateOrder(controller, argument).message());
+                    case "inspect", "talk", "submit", "appoint", "allocate", "order" ->
+                        runAction(controller, line);
+                    case "act", "goal", "recap" ->
+                        runAI(agent, parts[0].toLowerCase(Locale.ROOT), argument);
+                    case "plan" -> agent.plan(argument.toLowerCase(Locale.ROOT)).forEach(System.out::println);
                     case "events" -> controller.events().forEach(System.out::println);
                     case "event" -> {
                         if (argument.equalsIgnoreCase("abandon")) {
@@ -78,25 +64,23 @@ public final class GameCLI {
         }
     }
 
-    private static ActionResult allocate(GameController controller, String argument) {
-        String[] allocation = argument.split("\\s+");
-        if (allocation.length != 2) {
-            return new ActionResult(false, "Usage: allocate <grain-quantity> <recipient>");
-        }
+    private static void runAction(GameController controller, String line) {
         try {
-            return controller.allocateGrain(Integer.parseInt(allocation[0]), allocation[1]);
-        } catch (NumberFormatException exception) {
-            return new ActionResult(false, "Grain quantity must be a whole number.");
+            System.out.println(controller.execute(CommandFactory.parse(line)).message());
+        } catch (IllegalArgumentException exception) {
+            System.out.println(exception.getMessage());
         }
     }
 
-    private static ActionResult operateOrder(GameController controller, String argument) {
-        IssueOrderCommand.Step step;
+    private static void runAI(GameAgent agent, String command, String argument) {
         try {
-            step = IssueOrderCommand.Step.valueOf(argument.toUpperCase(Locale.ROOT));
-        } catch (IllegalArgumentException exception) {
-            return new ActionResult(false, "Usage: order <request|approve|execute>");
+            switch (command) {
+                case "act" -> System.out.println(agent.act(argument));
+                case "goal" -> agent.draft(argument).forEach(System.out::println);
+                case "recap" -> System.out.println(agent.recap());
+            }
+        } catch (IOException exception) {
+            System.out.println("AI unavailable: " + exception.getMessage());
         }
-        return controller.operateOrder(step);
     }
 }

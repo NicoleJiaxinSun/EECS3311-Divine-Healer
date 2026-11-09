@@ -13,12 +13,16 @@ The complete project design report, including feature specifications, UML diagra
 
 ## Stage 2 - Update 1: CLI investigation
 
-From the repository root, compile and run with JDK 17 or newer:
+From the repository root, use JDK 17 or newer. Download Gson once to compile
+and run this version:
 
 ```sh
-javac -d out src/main/java/estate/*.java
-java -cp out estate.GameCLI
+curl -fL https://repo.maven.apache.org/maven2/com/google/code/gson/gson/2.11.0/gson-2.11.0.jar -o gson-2.11.0.jar
+javac -cp gson-2.11.0.jar -d out src/main/java/estate/*.java
+java -cp "out:gson-2.11.0.jar" estate.GameCLI
 ```
+
+On Windows, use a semicolon between the two classpath entries.
 
 Try `inspect mill` to discover evidence, `inspect manor` to see an access
 refusal, and `evidence` to list discoveries. Inspecting the mill again keeps a
@@ -91,8 +95,35 @@ deterministic part of F11). Read-only queries and input usage errors
 stay out of the history. The command executor sends action outcomes to
 the event manager and the history recorder.
 
-## Planned Implementation
+## Stage 2 - Update 5: Natural-language actions, plans, and recap
 
-- Swing GUI and additional CLI commands
-- DeepSeek API integration
-- Command, Adapter, Strategy, State, and Observer patterns
+Set the `DEEPSEEK_API_KEY` environment variable before launching Java to
+enable AI features. The adapter uses `deepseek-flash` and
+[DeepSeek's Chat Completions API](https://api-docs.deepseek.com/api/create-chat-completion/).
+Typed commands work without a key.
+
+```text
+act Inspect the mill labor record
+goal Get appointed as relief officer and deliver three grain to the mill
+plan show
+plan approve
+plan run
+history
+recap
+```
+
+- F01: `act` interprets a request as one supported game command and runs it
+  through the same Java rules as a typed command.
+- F09: `goal` creates one draft at a time with up to eight validated commands.
+  Drafting changes no game state.
+- F10: Review the steps before approving and running them. A failed step
+  pauses the plan. After addressing the issue, approve and run again to
+  retry that step. Earlier successful steps are retained. Use `plan cancel`
+  to end the current plan.
+- F11: `recap` summarizes up to 12 recent action records. `history` remains
+  available when the AI call fails.
+
+The AI commands send the request, visible game status, and recent action
+records as context where applicable. Game state and the current plan are
+in-memory. Swing, save/load (F12), and the course's KUMA validation remain
+outside this CLI milestone.
