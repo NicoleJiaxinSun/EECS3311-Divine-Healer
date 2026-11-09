@@ -29,6 +29,29 @@ This slice implements F02 (UC02). `GameCLI` routes inspection through
 `LaborRegister` and records discoveries in `GameState`. The mill and manor
 records are starter data, and evidence is held in memory for the session.
 
+## Stage 2 - Update 2: NPC negotiation and evidence submission
+
+Try this sequence in the CLI:
+
+```text
+talk steward
+inspect mill
+submit mill steward
+talk steward
+```
+
+The steward requires evidence of a disputed charge before agreeing to review
+it. Discovering the evidence gives it the ID `mill`, and submitting it makes
+it known to the steward. Repeated submissions keep a single knowledge entry.
+Try `talk healer` for a cooperative NPC and `submit mill healer` to see an
+irrelevant submission refused.
+
+`TalkCommand` routes the rule-based part of F03 (UC03) to an NPC's
+`NegotiationStrategy`. For F04 (UC04), it checks that the player discovered
+the evidence before the NPC evaluates relevance and records it. Dialogue
+uses fixed lines at this stage. NPC knowledge is held in memory, and story event progression is planned for
+a later update.
+
 ## Planned Implementation
 
 - Swing GUI and additional CLI commands

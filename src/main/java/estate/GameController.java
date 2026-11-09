@@ -16,6 +16,16 @@ final class GameController {
         return command.execute(state);
     }
 
+    ActionResult requestReview(String npcId) {
+        return TalkCommand.review(npcId.toLowerCase(Locale.ROOT)).execute(state);
+    }
+
+    ActionResult submitEvidence(String evidenceId, String npcId) {
+        GameCommand command = new TalkCommand(
+                npcId.toLowerCase(Locale.ROOT), evidenceId.toLowerCase(Locale.ROOT));
+        return command.execute(state);
+    }
+
     List<String> evidence() {
         return state.evidence();
     }

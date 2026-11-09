@@ -4,7 +4,8 @@ import java.util.Locale;
 import java.util.Scanner;
 
 public final class GameCLI {
-    private static final String HELP = "Commands: inspect <household>, evidence, help, quit";
+    private static final String HELP = "Commands: inspect <household>, evidence, "
+            + "talk <npc>, submit <evidence-id> <npc>, help, quit";
 
     public static void main(String[] args) {
         GameController controller = new GameController();
@@ -23,6 +24,21 @@ public final class GameCLI {
                     case "inspect" -> {
                         ActionResult result = controller.inspect(argument);
                         System.out.println(result.message());
+                    }
+                    case "talk" -> {
+                        if (argument.isEmpty()) {
+                            System.out.println("Usage: talk <npc>");
+                        } else {
+                            System.out.println(controller.requestReview(argument).message());
+                        }
+                    }
+                    case "submit" -> {
+                        String[] submission = argument.split("\\s+");
+                        if (submission.length != 2) {
+                            System.out.println("Usage: submit <evidence-id> <npc>");
+                        } else {
+                            System.out.println(controller.submitEvidence(submission[0], submission[1]).message());
+                        }
                     }
                     case "evidence" -> {
                         var evidence = controller.evidence();
