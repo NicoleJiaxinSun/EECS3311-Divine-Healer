@@ -53,7 +53,10 @@ irrelevant submission refused.
 `TalkCommand` routes the rule-based part of F03 (UC03) to an NPC's
 `NegotiationStrategy`. For F04 (UC04), it checks that the player discovered
 the evidence before the NPC evaluates relevance and records it. Dialogue
-uses fixed lines at this stage. NPC knowledge is held in memory.
+uses fixed lines with `talk <npc>`. Use `talk-ai steward` or
+`talk-ai healer` to request optional DeepSeek dialogue after Java has
+decided the result. The rule result is shown first and stays visible
+if the AI call fails. NPC knowledge is held in memory.
 
 ## Stage 2 - Update 3: Appointment, grain relief, and official orders
 
@@ -171,7 +174,7 @@ DeepSeek adapter tests use an HTTP server on the local loopback address.
 | Features | Covered behavior |
 | --- | --- |
 | F01, F09, F11 | DeepSeek request and response format, missing key, HTTP errors, truncated and invalid output |
-| F02–F04 | Investigation access, evidence deduplication, negotiation, evidence relevance |
+| F02–F04 | Investigation access, evidence deduplication, negotiation, optional dialogue fallback, evidence relevance |
 | F05–F07 | Resource limits and permissions, order lifecycle, appointment conditions |
 | F08 | Event unlocking, failed endings, and retained outcomes |
 | F10–F11 | Plan approval and resume, successful and refused history entries |

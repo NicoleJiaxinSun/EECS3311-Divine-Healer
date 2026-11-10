@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 final class GameAgent {
@@ -44,6 +45,27 @@ final class GameAgent {
         return controller.execute(propose(input, 1).get(0)).message();
     }
 
+    List<String> narrateReview(String target) {
+        String npc = target.strip().toLowerCase(Locale.ROOT);
+        if (!npc.equals("steward") && !npc.equals("healer")) {
+            return List.of("Usage: talk-ai <steward|healer>");
+        }
+
+        ActionResult result = controller.execute(CommandFactory.parse("talk " + npc));
+        try {
+            JsonObject response = client.generate("""
+                    Write one short line of dialogue from the named NPC in a political story game.
+                    Preserve the supplied decision and its terms. Do not invent events, promises,
+                    promotions, evidence, or changes to the game state.
+                    Return JSON only, for example {"dialogue":"Bring me proof of the charge."}.
+                    """, "NPC: " + npc + "\nDecision: " + (result.success() ? "accepted" : "refused")
+                    + "\nRule result: " + result.message());
+            return List.of(result.message(), "AI dialogue: " + displayText(response.get("dialogue")));
+        } catch (IOException exception) {
+            return List.of(result.message(), "AI dialogue unavailable: " + exception.getMessage());
+        }
+    }
+
     List<String> draft(String goal) throws IOException {
         if (plan != null && !plan.finished()) {
             return List.of("Finish or cancel the current plan before drafting another.");
@@ -75,12 +97,16 @@ final class GameAgent {
                 Distinguish successful and refused actions. Use only the supplied records.
                 Return JSON only, for example {"recap":"The player inspected the mill."}.
                 """, recentHistory(history));
-        String recap = requiredString(response.get("recap"))
+        return displayText(response.get("recap"));
+    }
+
+    private static String displayText(JsonElement value) throws IOException {
+        String text = requiredString(value)
                 .replace("\r\n", "\n").replace('\r', '\n').replace('\n', ' ');
-        if (recap.chars().anyMatch(Character::isISOControl)) {
+        if (text.chars().anyMatch(Character::isISOControl)) {
             throw new IOException("AI returned an invalid response.");
         }
-        return recap;
+        return text;
     }
 
     private List<CommandFactory.Action> propose(String input, int limit) throws IOException {

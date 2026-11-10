@@ -8,7 +8,7 @@ import java.util.Locale;
 final class GameSession {
     static final String TITLE = "The Divine Healer's Estate";
     static final String HELP = "Commands: inspect <household>, evidence, "
-            + "talk <npc>, submit <evidence-id> <npc>, appoint, "
+            + "talk <npc>, talk-ai <npc>, submit <evidence-id> <npc>, appoint, "
             + "allocate <grain-quantity> <recipient>, order <request|approve|execute>, "
             + "events, event abandon, history, status, act <text>, goal <text>, "
             + "plan <show|approve|run|cancel>, recap, save <path>, load <path>, help";
@@ -33,6 +33,7 @@ final class GameSession {
             return switch (parts[0].toLowerCase(Locale.ROOT)) {
                 case "inspect", "talk", "submit", "appoint", "allocate", "order" ->
                     List.of(controller.execute(CommandFactory.parse(line)).message());
+                case "talk-ai" -> agent.narrateReview(argument);
                 case "act" -> List.of(agent.act(argument));
                 case "goal" -> agent.draft(argument);
                 case "recap" -> List.of(agent.recap());

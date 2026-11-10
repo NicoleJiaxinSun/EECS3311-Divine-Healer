@@ -8,7 +8,8 @@ The Divine Healer's Estate is a political story game. The player
 investigates labor records, presents evidence to NPCs, gains authority,
 delivers relief, and corrects an official record. A player can enter a
 typed command or ask the AI agent to interpret a natural-language action,
-draft a multi-step plan, or recap recent actions.
+draft a multi-step plan, or recap recent actions. Players can also request
+optional AI dialogue for a negotiation.
 
 The [Stage 1 design report](Stage1/Stage1_Project_Design_Report.pdf) defines
 12 features, their use cases, and their UML interactions. The implementation
@@ -36,7 +37,7 @@ Class names below refer to Java files under
 | --- | --- | --- | --- |
 | F01 / UC01 · Natural-language action | ActionInterpreter, LLMClient, CommandFactory, CommandExecutor | GameAgent interprets one action using LLMClient and DeepSeekAdapter. CommandFactory and CommandExecutor validate and execute it. | BT-01–04, BT-07–08 |
 | F02 / UC02 · Investigation | InspectCommand, LaborRegister, GameState | InspectCommand checks record access and records unique findings. | GameRulesTest · investigation |
-| F03 / UC03 · Negotiation | TalkCommand, NPC, NegotiationStrategy | The same roles decide whether the steward or healer cooperates. Dialogue uses fixed lines in this version. | GameRulesTest · steward review |
+| F03 / UC03 · Negotiation | TalkCommand, NPC, NegotiationStrategy | The same roles decide whether the steward or healer cooperates. Talk uses fixed lines. GameAgent provides optional DeepSeek dialogue after the rule result. | GameRulesTest · steward review, NpcDialogueTest |
 | F04 / UC04 · Evidence submission | TalkCommand, NPC, EventManager | TalkCommand checks discovery and NPC checks relevance and knowledge. EventManager observes the result. | GameRulesTest · evidence relevance and repeat submission, BT-05 |
 | F05 / UC05 · Resource allocation | AllocateCommand, Inventory | The relief officer can deliver grain to the mill within available stock. | GameRulesTest · authority and stock, BT-06 |
 | F06 / UC06 · Official orders | IssueOrderCommand, GameRules, LaborRegister | IssueOrderCommand checks authority and advances one correction order from request to approval to execution. LaborRegister applies the correction. | GameRulesTest · order lifecycle |
@@ -69,7 +70,7 @@ Class names below refer to Java files under
 - **Interface and scenario scope.** Swing provides a command field,
   separate AI action and goal modes, and shortcuts for common views and
   controls. The playable scenario uses two NPCs, one relief recipient,
-  one correction order, and fixed negotiation dialogue.
+  one correction order, and optional AI dialogue layered onto fixed negotiation results.
 
 ## AI tools and collaboration
 
@@ -99,7 +100,9 @@ A fixture supplies a plan for the approval and resume check. Five additional
 JUnit tests exercise the DeepSeek adapter through a local HTTP server.
 They verify request encoding, successful parsing, missing-key handling,
 HTTP errors, and rejection of truncated or malformed completions. The
-combined JUnit suite passed 14 of 14.
+adapter regression passed 14 of 14. Four later dialogue tests cover accepted
+and refused results, provider failure, invalid output, and unknown NPC input.
+The expanded JUnit suite passed 18 of 18.
 
 The KUMA suite uses nine scenarios with a local judge. It checks both the
 visible reply and game history so a reported refusal can be compared with
