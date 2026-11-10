@@ -75,7 +75,12 @@ final class GameAgent {
                 Distinguish successful and refused actions. Use only the supplied records.
                 Return JSON only, for example {"recap":"The player inspected the mill."}.
                 """, recentHistory(history));
-        return requiredString(response.get("recap"));
+        String recap = requiredString(response.get("recap"))
+                .replace("\r\n", "\n").replace('\r', '\n').replace('\n', ' ');
+        if (recap.chars().anyMatch(Character::isISOControl)) {
+            throw new IOException("AI returned an invalid response.");
+        }
+        return recap;
     }
 
     private List<CommandFactory.Action> propose(String input, int limit) throws IOException {
@@ -119,7 +124,7 @@ final class GameAgent {
 
     private static String requiredString(JsonElement value) throws IOException {
         if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isString()
-                || value.getAsString().isBlank() || value.getAsString().chars().anyMatch(Character::isISOControl)) {
+                || value.getAsString().isBlank()) {
             throw new IOException("AI returned an invalid response.");
         }
         return value.getAsString();

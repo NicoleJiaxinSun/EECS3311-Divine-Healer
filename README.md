@@ -174,3 +174,9 @@ response to verify the deterministic approval and execution rules.
 | F08 | Event unlocking, failed endings, and retained outcomes |
 | F10–F11 | Plan approval and resume, successful and refused history entries |
 | F12 | Save/load round trip and preservation of the active session on invalid input |
+
+## Stage 3 - KUMA behavior evaluation
+
+See the [behavior evaluation](Stage3/Behavior-Evaluation.md) for the
+requirements, nine offline scenarios, baseline and retest results, and
+the command to run the live DeepSeek cases.
