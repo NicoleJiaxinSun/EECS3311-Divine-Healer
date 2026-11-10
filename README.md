@@ -151,3 +151,26 @@ requires approval again after loading.
 
 Saving to an existing CLI path replaces that file. A malformed or
 unsupported save reports an error and preserves the current session.
+
+## Stage 3 - Automated Java tests
+
+From the repository root, follow the setup above to obtain Gson, then
+download the JUnit runner and run the suite:
+
+```sh
+curl -fL https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/1.11.4/junit-platform-console-standalone-1.11.4.jar -o junit-platform-console-standalone-1.11.4.jar
+javac --release 17 -cp "gson-2.11.0.jar:junit-platform-console-standalone-1.11.4.jar" -d out/test src/main/java/estate/*.java src/test/java/estate/*.java
+java -jar junit-platform-console-standalone-1.11.4.jar execute --class-path "out/test:gson-2.11.0.jar" --scan-class-path
+```
+
+On Windows, use a semicolon between classpath entries. The tests run
+without a DeepSeek key. The plan-resume case supplies a fixed model
+response to verify the deterministic approval and execution rules.
+
+| Features | Covered behavior |
+| --- | --- |
+| F02–F04 | Investigation access, evidence deduplication, negotiation, evidence relevance |
+| F05–F07 | Resource limits and permissions, order lifecycle, appointment conditions |
+| F08 | Event unlocking, failed endings, and retained outcomes |
+| F10–F11 | Plan approval and resume, successful and refused history entries |
+| F12 | Save/load round trip and preservation of the active session on invalid input |
