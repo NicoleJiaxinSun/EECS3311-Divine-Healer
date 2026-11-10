@@ -165,10 +165,12 @@ java -jar junit-platform-console-standalone-1.11.4.jar execute --class-path "out
 
 On Windows, use a semicolon between classpath entries. The tests run
 without a DeepSeek key. The plan-resume case supplies a fixed model
-response to verify the deterministic approval and execution rules.
+response to verify the deterministic approval and execution rules. The
+DeepSeek adapter tests use an HTTP server on the local loopback address.
 
 | Features | Covered behavior |
 | --- | --- |
+| F01, F09, F11 | DeepSeek request and response format, missing key, HTTP errors, truncated and invalid output |
 | F02–F04 | Investigation access, evidence deduplication, negotiation, evidence relevance |
 | F05–F07 | Resource limits and permissions, order lifecycle, appointment conditions |
 | F08 | Event unlocking, failed endings, and retained outcomes |

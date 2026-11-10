@@ -37,6 +37,8 @@ same local judge.
 | KUMA 0.3.9, offline baseline | 8/9 passed. BT-09 reported an issue. |
 | KUMA 0.3.9, offline retest | 9/9 passed. |
 | JUnit regression run | 9/9 passed. |
+| Later JUnit regression with local HTTP adapter checks | 14/14 passed. |
+| Later KUMA offline regression | 9/9 passed. |
 | DeepSeek live cases | Pending. This run had no configured DeepSeek key. |
 
 BT-09 exposed an output-format failure. A fixture returned two valid

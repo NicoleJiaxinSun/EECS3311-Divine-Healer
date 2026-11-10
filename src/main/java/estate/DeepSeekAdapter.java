@@ -2,7 +2,8 @@ package estate;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,11 +16,17 @@ import java.util.Map;
 final class DeepSeekAdapter implements LLMClient {
     private static final URI ENDPOINT = URI.create("https://api.deepseek.com/chat/completions");
     private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().setStrictness(Strictness.STRICT).create();
+    private final URI endpoint;
     private final String apiKey;
 
     DeepSeekAdapter(String apiKey) {
+        this(apiKey, ENDPOINT);
+    }
+
+    DeepSeekAdapter(String apiKey, URI endpoint) {
         this.apiKey = apiKey;
+        this.endpoint = endpoint;
     }
 
     @Override
@@ -36,7 +43,7 @@ final class DeepSeekAdapter implements LLMClient {
                 "messages", List.of(
                         Map.of("role", "system", "content", instructions),
                         Map.of("role", "user", "content", input))));
-        HttpRequest request = HttpRequest.newBuilder(ENDPOINT)
+        HttpRequest request = HttpRequest.newBuilder(endpoint)
                 .timeout(Duration.ofSeconds(30))
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
@@ -57,13 +64,20 @@ final class DeepSeekAdapter implements LLMClient {
         }
 
         try {
-            var choice = JsonParser.parseString(response.body()).getAsJsonObject()
+            var choice = gson.fromJson(response.body(), JsonObject.class)
                     .getAsJsonArray("choices").get(0).getAsJsonObject();
             if (!"stop".equals(choice.get("finish_reason").getAsString())) {
                 throw new IOException("DeepSeek did not finish the response.");
             }
-            String content = choice.getAsJsonObject("message").get("content").getAsString();
-            return JsonParser.parseString(content).getAsJsonObject();
+            var content = choice.getAsJsonObject("message").getAsJsonPrimitive("content");
+            if (!content.isString() || content.getAsString().isBlank()) {
+                throw new IOException("DeepSeek returned no usable message content.");
+            }
+            JsonObject result = gson.fromJson(content.getAsString(), JsonObject.class);
+            if (result == null) {
+                throw new IOException("DeepSeek returned an invalid JSON response.");
+            }
+            return result;
         } catch (RuntimeException exception) {
             throw new IOException("DeepSeek returned an invalid JSON response.", exception);
         }

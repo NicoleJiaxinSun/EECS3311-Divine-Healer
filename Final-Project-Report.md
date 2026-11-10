@@ -95,7 +95,11 @@ The deterministic suite exercises the same `GameSession` used by CLI and
 Swing. All nine JUnit tests passed. They cover game outcomes and
 non-mutation on rejection, including denied inspections, invalid
 allocations, unauthorized or repeated execution, and failed loads.
-A fixture supplies a plan for the approval and resume check.
+A fixture supplies a plan for the approval and resume check. Five additional
+JUnit tests exercise the DeepSeek adapter through a local HTTP server.
+They verify request encoding, successful parsing, missing-key handling,
+HTTP errors, and rejection of truncated or malformed completions. The
+combined JUnit suite passed 14 of 14.
 
 The KUMA suite uses nine scenarios with a local judge. It checks both the
 visible reply and game history so a reported refusal can be compared with
