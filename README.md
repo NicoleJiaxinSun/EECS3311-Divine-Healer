@@ -180,3 +180,9 @@ response to verify the deterministic approval and execution rules.
 See the [behavior evaluation](Stage3/Behavior-Evaluation.md) for the
 requirements, nine offline scenarios, baseline and retest results, and
 the command to run the live DeepSeek cases.
+
+## Final project report
+
+The [final report](Final-Project-Report.md) maps Stage 1 features to the
+implementation and tests, records the AI-assisted workflow, and
+summarizes the evaluation results and remaining live checks.
