@@ -125,3 +125,16 @@ model behavior remains unverified. The [README](README.md) explains how
 to run both interfaces and the test suite. The
 [behavior evaluation](Stage3/Behavior-Evaluation.md) records the local
 results and the live run command.
+
+## Save format validation update · November 15, 2026
+
+A regression case showed that Gson accepted a string version number
+such as `"version":"1"` and replaced the current session with that
+malformed save. Loading now checks JSON field types before decoding
+the save record. Version and plan cursor fields require integer numbers,
+and recorded actions and plan steps require strings.
+
+The new regression case checks malformed version, action, and plan
+cursor fields. Rejected loads preserve the active plan and action history.
+The full JUnit suite passed 19 of 19 after the fix. This run exercised
+local game and HTTP tests. The live DeepSeek cases remain pending.

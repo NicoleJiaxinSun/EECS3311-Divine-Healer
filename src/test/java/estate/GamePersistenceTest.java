@@ -79,6 +79,27 @@ class GamePersistenceTest {
         }
     }
 
+    @Test
+    void rejectsCoercedSaveFieldsWithoutReplacingAnActivePlan() throws IOException {
+        Path saveFile = directory.resolve("wrong-types.json");
+        GameSession game = new GameSession((instructions, input) ->
+                JsonParser.parseString("{\"steps\":[\"inspect mill\"]}").getAsJsonObject());
+        game.run("goal inspect the mill");
+        game.run("inspect mill");
+        var plan = game.run("plan show");
+        var history = game.run("history");
+        for (String invalid : List.of(
+                "{\"version\":\"1\",\"actions\":[]}",
+                "{\"version\":1,\"actions\":[123]}",
+                "{\"version\":1,\"actions\":[],\"plan\":{\"steps\":[\"inspect mill\"],"
+                        + "\"status\":\"DRAFT\",\"nextStepIndex\":\"0\"}}")) {
+            Files.writeString(saveFile, invalid);
+            assertTrue(game.run("load " + saveFile).get(0).startsWith("Load failed:"), invalid);
+            assertEquals(plan, game.run("plan show"));
+            assertEquals(history, game.run("history"));
+        }
+    }
+
     private static GameSession offlineSession() {
         return new GameSession((instructions, input) -> {
             throw new AssertionError("Loading and executing saved steps must not call the AI.");

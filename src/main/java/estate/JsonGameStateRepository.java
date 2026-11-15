@@ -3,6 +3,8 @@ package estate;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.Strictness;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,7 +42,9 @@ final class JsonGameStateRepository {
 
     LoadedGame load(Path file) throws IOException {
         try (var reader = Files.newBufferedReader(file)) {
-            SaveFile save = gson.fromJson(reader, SaveFile.class);
+            JsonObject data = gson.fromJson(reader, JsonObject.class);
+            validateTypes(data);
+            SaveFile save = gson.fromJson(data, SaveFile.class);
             if (save == null || save.version() == null || save.version() != VERSION
                     || save.actions() == null || save.actions().stream().anyMatch(action -> action == null)) {
                 throw new IOException("Invalid or unsupported save file.");
@@ -60,4 +64,36 @@ final class JsonGameStateRepository {
             throw new IOException("Invalid or unsupported save file.", exception);
         }
     }
+    private static void validateTypes(JsonObject data) throws IOException {
+        if (data == null || !integer(data.get("version")) || !strings(data.get("actions"))) {
+            throw new IOException("Invalid save field types.");
+        }
+        JsonElement plan = data.get("plan");
+        if (plan == null || plan.isJsonNull()) {
+            return;
+        }
+        if (!plan.isJsonObject()) {
+            throw new IOException("Invalid saved plan.");
+        }
+        JsonObject snapshot = plan.getAsJsonObject();
+        if (!strings(snapshot.get("steps")) || !integer(snapshot.get("nextStepIndex"))
+                || !string(snapshot.get("status"))) {
+            throw new IOException("Invalid saved plan field types.");
+        }
+    }
+
+    private static boolean integer(JsonElement value) {
+        return value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isNumber()
+                && value.getAsString().matches("0|[1-9][0-9]*");
+    }
+
+    private static boolean strings(JsonElement value) {
+        return value != null && value.isJsonArray()
+                && value.getAsJsonArray().asList().stream().allMatch(JsonGameStateRepository::string);
+    }
+
+    private static boolean string(JsonElement value) {
+        return value != null && value.isJsonPrimitive() && value.getAsJsonPrimitive().isString();
+    }
+
 }
