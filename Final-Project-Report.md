@@ -156,3 +156,13 @@ a request rejection reason and an empty game history. Live provider
 outages are marked insufficient evidence. Three Python regression tests
 passed, including HTTP and connection failures, and all nine offline
 KUMA cases passed with the corrected judge.
+
+## Reproducible Java build
+
+The Maven configuration pins the existing Gson and JUnit versions,
+targets Java 17, and provides CLI and Swing launch commands. Maven
+resolves the dependencies and writes JUnit reports under
+`target/surefire-reports/`. The first Maven run passed all 19 tests.
+A CLI smoke check through `mvn compile exec:exec` verified inspection,
+history display, and clean exit. The Swing main-class override was
+verified using its headless-environment message.

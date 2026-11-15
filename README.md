@@ -5,6 +5,25 @@ EECS3311 Course Project
 
 An AI Game Master agent for a political story game. AI interprets player actions and proposes multi-step plans, while Java rules determine action outcomes and NPC negotiation results.
 
+## Build and run with Maven
+
+Use JDK 17 or newer and Maven 3.9 or newer. Run these commands from
+the repository root. Maven downloads Gson and JUnit automatically.
+
+```sh
+mvn test
+mvn compile exec:exec
+```
+
+The second command starts the CLI. To start the Swing window, use:
+
+```sh
+mvn compile exec:exec -Dgame.mainClass=estate.GameGUI
+```
+
+JUnit test results are written to `target/surefire-reports/`. AI
+features read `DEEPSEEK_API_KEY` from the environment of the Java process.
+
 ## Stage 1
 
 The complete project design report, including feature specifications, UML diagrams, design pattern explanations, and feature-to-design traceability, is available in:
