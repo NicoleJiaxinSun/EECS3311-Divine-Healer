@@ -64,3 +64,20 @@ Set `DEEPSEEK_API_KEY` in the environment and add `--live` to the last
 command to run the five live cases. Repeat the live run to compare model
 behavior across attempts. In Windows use a semicolon between classpath
 entries and the virtual environment's `Scripts/python.exe`.
+
+## Export a run report
+
+Append `--report out/kuma-results.json` to the evaluation command to save
+a JSON report. It includes the run time, KUMA version, offline or live
+mode, each command and actual response, expected response fragments,
+case outcomes, and failure details. Command indexes in expectations
+start at zero. An existing report at the same path is replaced after
+the new report has been written completely.
+
+A failed or timed-out game probe is recorded as insufficient evidence.
+Its response field is null. The runner returns a nonzero exit code
+for an unsuccessful run, including when the report cannot be written.
+
+The report export was verified with a 9/9 offline run and with an
+unavailable Java probe. The latter exported 0/9 with insufficient
+evidence for each case and returned exit code 1.

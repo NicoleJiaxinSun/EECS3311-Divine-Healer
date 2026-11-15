@@ -2,10 +2,14 @@
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from importlib.metadata import version
 import json
 import os
 from pathlib import Path
 import subprocess
+import tempfile
+import time
 
 from kuma import create_run
 
@@ -78,6 +82,8 @@ def run_case(case, classpath, live):
         return {"report_id": case.id, "status": "issue" if failures else "pass"}
 
     failures = []
+    responses = None
+    started = time.monotonic()
     run = create_run(
         repo_path=ROOT,
         agent_profile_path=ROOT / "Stage3" / "agent-profile.md",
@@ -96,35 +102,78 @@ def run_case(case, classpath, live):
         try:
             process = subprocess.run(process_args, input="\n".join(commands) + "\n",
                                      text=True, capture_output=True, check=True, timeout=100)
-            responses = [json.loads(line) for line in process.stdout.splitlines()]
-            if len(responses) != len(commands):
-                raise ValueError("Unexpected number of game responses")
+            output = [json.loads(line) for line in process.stdout.splitlines()]
+            if (len(output) != len(commands)
+                    or any(not isinstance(lines, list)
+                           or any(not isinstance(line, str) for line in lines)
+                           for lines in output)):
+                raise ValueError("Unexpected game response structure")
+            responses = output
         except subprocess.TimeoutExpired:
             run.submit(status="timeout", error="Game probe timed out.")
-        except (subprocess.CalledProcessError, ValueError):
+        except (OSError, subprocess.CalledProcessError, ValueError):
             run.submit(status="failed", error="Game probe returned invalid output.")
         else:
             run.submit(responses)
         print(f"{case.id}: {run.report.status.upper()}")
         for failure in failures:
             print(f"  {failure}")
-        return run.report.status == "pass"
+        return {
+            "case_id": case.id,
+            "status": run.report.status,
+            "duration_seconds": round(time.monotonic() - started, 3),
+            "commands": list(case.commands),
+            "responses": responses,
+            "expectations": [{"command_index": index, "contains": expected}
+                             for index, expected in case.required],
+            "failures": failures,
+        }
     finally:
         if run.state in {"ready", "input_delivered"}:
             run.cancel()
+
+
+def write_report(path, report):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=".kuma-report-", delete=False) as output:
+            temporary = Path(output.name)
+            json.dump(report, output, indent=2, ensure_ascii=False)
+            output.write("\n")
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--classpath", required=True)
     parser.add_argument("--live", action="store_true", help="Run the live-capable cases with DeepSeek.")
+    parser.add_argument("--report", type=Path, help="Write case evidence and results to this JSON file.")
     args = parser.parse_args()
     if args.live and not os.environ.get("DEEPSEEK_API_KEY"):
         parser.error("--live requires DEEPSEEK_API_KEY")
 
     cases = [case for case in CASES if case.live or not args.live]
     print("DeepSeek mode" if args.live else "Offline fixture mode")
-    passed = sum(run_case(case, args.classpath, args.live) for case in cases)
+    results = [run_case(case, args.classpath, args.live) for case in cases]
+    passed = sum(result["status"] == "pass" for result in results)
+    if args.report is not None:
+        report = {
+            "schema_version": 1,
+            "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+            "mode": "live" if args.live else "offline_fixture",
+            "kuma_version": version("kuma-defuzex"),
+            "summary": {"passed": passed, "total": len(results)},
+            "cases": results,
+        }
+        try:
+            write_report(args.report, report)
+        except OSError as error:
+            parser.exit(2, f"Could not write report: {error}\n")
     print(f"{passed}/{len(cases)} passed")
     return 0 if passed == len(cases) else 1
 

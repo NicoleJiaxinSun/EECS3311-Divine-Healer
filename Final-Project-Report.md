@@ -138,3 +138,12 @@ The new regression case checks malformed version, action, and plan
 cursor fields. Rejected loads preserve the active plan and action history.
 The full JUnit suite passed 19 of 19 after the fix. This run exercised
 local game and HTTP tests. The live DeepSeek cases remain pending.
+
+## Evaluation evidence export
+
+The KUMA runner now accepts `--report <path>` to preserve inputs,
+actual responses, expected response fragments, case judgments, and
+failure details in JSON. Mode and KUMA version are included for
+reproduction. Verification covered a 9/9 offline run and a failed
+Java launch. The failed launch exported insufficient-evidence outcomes
+and returned a failing process exit code.

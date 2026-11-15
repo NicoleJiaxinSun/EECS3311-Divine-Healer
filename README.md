@@ -191,3 +191,6 @@ the command to run the live DeepSeek cases.
 The [final report](Final-Project-Report.md) maps Stage 1 features to the
 implementation and tests, records the AI-assisted workflow, and
 summarizes the evaluation results and remaining live checks.
+
+To retain the commands, actual responses, and case judgments from a
+KUMA run, append `--report out/kuma-results.json` to its command.
