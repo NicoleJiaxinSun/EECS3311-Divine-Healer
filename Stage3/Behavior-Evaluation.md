@@ -81,3 +81,24 @@ for an unsuccessful run, including when the report cannot be written.
 The report export was verified with a 9/9 offline run and with an
 unavailable Java probe. The latter exported 0/9 with insufficient
 evidence for each case and returned exit code 1.
+
+## Judge regression update
+
+The refusal cases BT-02 through BT-04 originally accepted the general
+`AI unavailable:` prefix. That allowed an HTTP failure to satisfy the
+refusal check. The judge now requires a supported-request rejection
+message and empty game history. In live mode, missing credentials,
+HTTP errors, connection failures, and interrupted requests produce
+`insufficient_evidence`. Malformed model output produces an issue
+for these request interpretation cases.
+
+Three Python regression tests cover outages, valid rejections with
+and without game mutations, and malformed model responses. Run them
+in the KUMA environment from the repository root:
+
+```sh
+out/kuma-env/bin/python -m unittest discover -s Stage3 -p 'test_*.py'
+```
+
+All three judge regression tests and all nine offline KUMA cases passed
+after the correction. Live model execution is still pending.

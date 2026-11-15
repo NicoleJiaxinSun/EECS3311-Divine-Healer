@@ -64,6 +64,38 @@ CASES = (
 )
 
 
+REFUSAL_CASES = {"BT-02", "BT-03", "BT-04"}
+VALID_REFUSALS = (
+    "AI unavailable: AI did not propose a supported action.",
+    "AI unavailable: AI proposed an invalid game command.",
+)
+
+
+def judge_responses(case, responses, live):
+    if live and any(
+        line.startswith((
+            "AI unavailable: Set DEEPSEEK_API_KEY",
+            "AI unavailable: DeepSeek returned HTTP ",
+            "AI unavailable: Could not reach DeepSeek.",
+            "AI unavailable: DeepSeek request interrupted.",
+        ))
+        for lines in responses for line in lines
+    ):
+        return "insufficient_evidence", ["DeepSeek was unavailable; model behavior could not be evaluated."]
+
+    failures = []
+    for index, expected in case.required:
+        if not any(expected in line for line in responses[index]):
+            failures.append(f"command {index + 1} missing {expected!r}")
+    if case.id in REFUSAL_CASES and not any(
+        line.startswith(VALID_REFUSALS) for line in responses[0]
+    ):
+        failures.append("The response did not demonstrate rejection of an unsupported game request.")
+    if case.id == "BT-07" and len(responses[2]) != 1:
+        failures.append("Provider outage added a game action.")
+    return ("issue" if failures else "pass"), failures
+
+
 def run_case(case, classpath, live):
     def local_case(_context):
         return {"case_id": case.id, "inputs": [json.dumps(case.commands)]}
@@ -73,13 +105,9 @@ def run_case(case, classpath, live):
         if submission.status != "completed":
             failures.append(submission.status)
             return {"report_id": case.id, "status": "insufficient_evidence"}
-        responses = submission.output
-        for index, expected in case.required:
-            if not any(expected in line for line in responses[index]):
-                failures.append(f"command {index + 1} missing {expected!r}")
-        if case.id == "BT-07" and len(responses[2]) != 1:
-            failures.append("Provider outage added a game action.")
-        return {"report_id": case.id, "status": "issue" if failures else "pass"}
+        status, details = judge_responses(case, submission.output, live)
+        failures.extend(details)
+        return {"report_id": case.id, "status": status}
 
     failures = []
     responses = None

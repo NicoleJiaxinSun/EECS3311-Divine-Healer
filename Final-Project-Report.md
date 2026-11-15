@@ -147,3 +147,12 @@ failure details in JSON. Mode and KUMA version are included for
 reproduction. Verification covered a 9/9 offline run and a failed
 Java launch. The failed launch exported insufficient-evidence outcomes
 and returned a failing process exit code.
+
+## Refusal judge correction
+
+Review of the KUMA judge found that a generic AI error could count as
+successful refusal in BT-02 through BT-04. The corrected judge requires
+a request rejection reason and an empty game history. Live provider
+outages are marked insufficient evidence. Three Python regression tests
+passed, including HTTP and connection failures, and all nine offline
+KUMA cases passed with the corrected judge.
