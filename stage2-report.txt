@@ -62,8 +62,7 @@ Local setup
 
 Source paths below are relative to src/main/java/estate/. Every F-number is an original
 Stage 1 feature, paired with its same-numbered use case. Implemented means the code path
-exists and has local verification. AI-related status entries explicitly retain the
-pending real-provider verification. Video references point to the planned segments in
+exists and has local verification. AI-related entries include the selected successful live checks recorded on November 15. Video references point to the planned segments in
 Section 7, whose actual URLs and timestamps are not yet available.
 
 
@@ -851,9 +850,8 @@ OpenAI Codex
 
 DeepSeek
   Configured runtime model deepseek-flash. Used by the submitted application for
-  action proposals, plan drafts, NPC dialogue, and recap. The recorded verification
-  runs used fixtures and a local HTTP server. No successful real DeepSeek call is
-  evidenced by those runs. Actual token usage and account charges are not supplied; no
+  action proposals, plan drafts, NPC dialogue, and recap. Earlier checks used fixtures and a local HTTP server. The funded live run
+  passed all six KUMA cases; a separate live recap check also succeeded. Actual token usage and account charges are not supplied; no
   monetary total is claimed.
 
 KUMA
@@ -1029,8 +1027,8 @@ Important defects and corrections
   alongside the latest history.
 
 Remaining limitations
-  No real DeepSeek execution is recorded. Optional generated dialogue can require
-  review for factual faithfulness. The scenario is small. Save compatibility relies on
+  One real DeepSeek run passed the selected cases. Generated dialogue still
+  requires review for factual faithfulness across additional requests. The scenario is small. Save compatibility relies on
   stable command semantics. The demonstration recordings and cost totals are
   incomplete, and early weekly activity requirements were missed.
 
