@@ -1,0 +1,24 @@
+{
+  "mode": "live",
+  "commands": [
+    "inspect mill",
+    "inspect manor",
+    "recap",
+    "history"
+  ],
+  "responses": [
+    [
+      "Evidence discovered: The mill household was charged for the same shift twice."
+    ],
+    [
+      "Access denied: manor"
+    ],
+    [
+      "The player inspected the mill and discovered evidence that the mill household was charged for the same shift twice. An attempt to inspect the manor was refused due to access being denied."
+    ],
+    [
+      "OK | inspect mill | Evidence discovered: The mill household was charged for the same shift twice.",
+      "REFUSED | inspect manor | Access denied: manor"
+    ]
+  ]
+}

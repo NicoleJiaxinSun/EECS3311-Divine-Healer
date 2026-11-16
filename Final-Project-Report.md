@@ -2,6 +2,14 @@
 
 EECS3311 final project report · November 10, 2026
 
+## Current live-verification status
+
+On November 15, after account funding, all six selected real DeepSeek
+KUMA cases passed. A separate live recap check also produced a grounded
+summary. Actual replies are in Stage3/results. This supersedes historical
+pending statements below. Feature videos and account-derived cost
+figures remain outstanding.
+
 ## Project scope and design
 
 The Divine Healer's Estate is a political story game. The player

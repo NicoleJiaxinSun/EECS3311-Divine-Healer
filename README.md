@@ -243,3 +243,8 @@ KUMA run, append `--report out/kuma-results.json` to its command.
 The [Stage 2 report text](stage2-report.txt) follows the seven required
 sections and records pending video and live-model evidence.
 [Updated UML](Stage2/UML/README.md) describes the current implementation.
+
+The recorded funded DeepSeek run passed all six live KUMA cases.
+[Live run evidence](Stage3/results/deepseek-live-funded-2026-11-15.json)
+and a [live recap check](Stage3/results/deepseek-live-recap-2026-11-15.json)
+are available for review.

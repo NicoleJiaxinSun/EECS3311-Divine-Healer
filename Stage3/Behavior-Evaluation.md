@@ -41,6 +41,7 @@ same local judge.
 | JUnit regression run | 9/9 passed. |
 | Later JUnit regression with local HTTP adapter checks | 14/14 passed. |
 | Later KUMA offline regression | 9/9 passed. |
+| Funded DeepSeek rerun, November 15 | 6/6 passed; see funded run evidence below. |
 | First DeepSeek live run, November 15 | 0/6 passed; all 6 insufficient evidence because requests returned HTTP 402. |
 
 BT-09 exposed an output-format failure. A fixture returned two valid
@@ -131,3 +132,20 @@ application replies, retained history, and local judge outcomes. It
 contains no credentials. Replenish the API account balance before
 repeating the live suite. The run is evidence of provider-unavailable
 handling and does not establish a model behavior pass.
+
+
+## Funded live-provider rerun - November 15, 2026
+
+After account funding, all six selected live cases passed. The
+[funded run evidence](results/deepseek-live-funded-2026-11-15.json)
+records actual commands, replies, and local judgments. The steward's
+observed narration matched its refusal before evidence submission and
+acceptance afterward.
+
+A separate [live recap smoke check](results/deepseek-live-recap-2026-11-15.json)
+accurately described both the successful mill investigation and refused
+manor inspection. This additional call is outside the six KUMA cases.
+
+The earlier HTTP 402 results remain as historical evidence. The funded
+run supersedes the pending live-verification status in earlier sections.
+This is one observed run; repeated-run reliability has not been measured.

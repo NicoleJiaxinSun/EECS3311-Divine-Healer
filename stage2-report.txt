@@ -11,10 +11,10 @@ all current functionality was present by that deadline.
 Repository
 https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer
 
-Submission status is incomplete. The current code, basic verification, feature mapping,
-updated UML, and local configuration are available. Feature demonstration recordings,
-their accessible links and timestamps, real-model execution evidence, and development
-token and financial usage figures remain pending. The first two weekly code-activity
+Submission status is incomplete. The code, basic verification, feature mapping,
+updated UML, local configuration, and successful real-model execution evidence are
+available. Feature videos, their links and timestamps, and development token and
+financial usage figures remain pending. The first two weekly code-activity
 periods have no qualifying commits in the inspected main history.
 
 This edition was prepared as a text file at the student's request. The Stage 2
@@ -42,8 +42,9 @@ The submitted scenario implements 12 Stage 1 feature entries. The scenario is
 intentionally small, with the steward and healer, a public mill record, a restricted
 manor record, 10 starting grain, one relief recipient, and one correction order. These
 concrete values and scope choices are documented below. Typed game behavior has been
-exercised. Live DeepSeek behavior remains unverified. The first configured run
-returned HTTP 402 (insufficient account balance) in all six cases.
+exercised. The first configured live run returned HTTP 402. After funding the account,
+all six live KUMA cases passed, and a separate live recap check produced a grounded
+summary of the successful mill inspection and refused manor inspection.
 
 Build and entry points
   JDK 17 or newer and Maven 3.9 or newer. Run mvn test, mvn compile exec:exec for CLI,
@@ -70,7 +71,7 @@ F01 - Natural-language actions
 ==============================
 
 Stage 1 reference and current status
-  F01 / UC01. Implemented; real-provider behavior pending.
+  F01 / UC01. Implemented; selected live cases passed on November 15.
 
 Classification
   Hybrid.
@@ -147,7 +148,7 @@ F03 - NPC negotiation
 =====================
 
 Stage 1 reference and current status
-  F03 / UC03. Implemented with optional AI narration; live narration pending.
+  F03 / UC03. Implemented with optional AI narration; selected live narration cases passed.
 
 Classification
   Hybrid.
@@ -374,7 +375,7 @@ F09 - AI plan generation
 ========================
 
 Stage 1 reference and current status
-  F09 / UC09. Implemented; real-provider behavior pending.
+  F09 / UC09. Implemented; selected live cases passed on November 15.
 
 Classification
   AI-based.
@@ -447,7 +448,7 @@ F11 - History and recap
 =======================
 
 Stage 1 reference and current status
-  F11 / UC11. Implemented; real-provider recap pending.
+  F11 / UC11. Implemented; live recap smoke check passed.
 
 Classification
   Hybrid.
@@ -1253,3 +1254,25 @@ insufficient account balance. All six cases are insufficient evidence.
 The JSON evidence is at Stage3/results/deepseek-live-2026-11-15.json.
 Successful model behavior must be verified after the API account has
 sufficient balance. No credentials are included in that evidence.
+
+
+Funded live-provider rerun - November 15, 2026
+============================================
+
+After account funding, all six live KUMA cases passed. The run covers
+natural-language investigation, ambiguous and unsupported requests,
+an adversarial shell-command request, draft/approval/execution behavior,
+and steward dialogue before and after evidence submission. Observed
+dialogue preserved the rule decisions. The actual replies and judgments
+are in Stage3/results/deepseek-live-funded-2026-11-15.json.
+
+A separate live recap check summarized the successful mill investigation
+and denied manor inspection accurately. Its inputs and responses are in
+Stage3/results/deepseek-live-recap-2026-11-15.json. This is a smoke check,
+separate from the six KUMA judgments. The earlier HTTP 402 run remains
+in the repository as the provider-unavailable record.
+
+These are single-run observations. They establish that the configured
+application called the real model successfully in those scenarios.
+They do not establish repeated-run reliability. Video recordings and
+actual token and monetary usage figures remain outstanding.
