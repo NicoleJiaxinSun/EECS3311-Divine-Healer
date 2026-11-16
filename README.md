@@ -24,6 +24,19 @@ mvn compile exec:exec -Dgame.mainClass=estate.GameGUI
 JUnit test results are written to `target/surefire-reports/`. AI
 features read `DEEPSEEK_API_KEY` from the environment of the Java process.
 
+## Local API configuration
+
+Copy `config.example.json` to `config.local.json` in the repository root.
+Enter your DeepSeek key in the local copy, then start the GUI or CLI with
+the Maven commands above. The application reads that file when an AI
+feature is used. A nonblank `DEEPSEEK_API_KEY` environment variable takes
+precedence. Keep the example file as a placeholder.
+
+The local file is excluded by `.gitignore`. Keep it out of recordings
+and screenshots. You can use the typed game commands before adding a key.
+In Windows, use `Copy-Item config.example.json config.local.json`.
+In macOS or Linux, use `cp config.example.json config.local.json`.
+
 ## Stage 1
 
 The complete project design report, including feature specifications, UML diagrams, design pattern explanations, and feature-to-design traceability, is available in:
@@ -119,8 +132,8 @@ the event manager and the history recorder.
 
 ## Stage 2 - Update 5: Natural-language actions, plans, and recap
 
-Set the `DEEPSEEK_API_KEY` environment variable before launching Java to
-enable AI features. The adapter uses `deepseek-flash` and
+Configure `config.local.json` or the `DEEPSEEK_API_KEY` environment
+variable before launching Java to enable AI features. The adapter uses `deepseek-flash` and
 [DeepSeek's Chat Completions API](https://api-docs.deepseek.com/api/create-chat-completion/).
 Typed commands work without a key.
 
@@ -224,3 +237,9 @@ KUMA run, append `--report out/kuma-results.json` to its command.
 - Observer sends action results to EventManager and HistoryRecorder.
 - State delegates event transitions to LockedState, ActiveState,
   ResolvedState, and FailedState through EventState.
+
+## Stage 2 submission materials
+
+The [Stage 2 report text](stage2-report.txt) follows the seven required
+sections and records pending video and live-model evidence.
+[Updated UML](Stage2/UML/README.md) describes the current implementation.

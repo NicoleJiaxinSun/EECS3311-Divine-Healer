@@ -27,3 +27,9 @@ replay_pid*
 # Local build outputs
 /target/
 /out/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+config.local.json

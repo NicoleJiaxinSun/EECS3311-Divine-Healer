@@ -10,6 +10,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +32,7 @@ final class DeepSeekAdapter implements LLMClient {
 
     @Override
     public JsonObject generate(String instructions, String input) throws IOException {
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new IOException("Set DEEPSEEK_API_KEY to use AI commands.");
-        }
+        String configuredKey = LocalConfiguration.apiKey(apiKey, Path.of("config.local.json"));
 
         String body = gson.toJson(Map.of(
                 "model", "deepseek-flash",
@@ -45,7 +44,7 @@ final class DeepSeekAdapter implements LLMClient {
                         Map.of("role", "user", "content", input))));
         HttpRequest request = HttpRequest.newBuilder(endpoint)
                 .timeout(Duration.ofSeconds(30))
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + configuredKey)
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();

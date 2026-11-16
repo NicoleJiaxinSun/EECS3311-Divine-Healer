@@ -1,0 +1,31 @@
+@startuml
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam dpi 150
+title Optional NPC narration after a rule decision
+actor Player
+participant GameSession as Session
+participant GameAgent as Agent
+participant GameController as Controller
+participant TalkCommand as Talk
+participant NPC
+participant LLMClient as LLM
+Player -> Session : run("talk-ai steward")
+Session -> Agent : narrateReview("steward")
+Agent -> Controller : execute(TalkCommand.review)
+Controller -> Talk : execute(state) through CommandExecutor
+Talk -> NPC : negotiate()
+NPC --> Talk : strategy decision
+Talk --> Controller : ActionResult
+note right of Controller : CommandExecutor records the result.
+Controller --> Agent : authoritative result
+Agent -> LLM : generate(dialogue instruction, decision)
+alt valid AI response
+LLM --> Agent : JSON dialogue
+Agent --> Player : rule result followed by AI dialogue
+else provider or output failure
+LLM --> Agent : IOException
+Agent --> Player : rule result and dialogue-unavailable message
+end
+@enduml

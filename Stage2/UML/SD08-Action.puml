@@ -1,0 +1,40 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Current typed action and observer flow
+actor Player
+participant "GUI / CLI" as UI
+participant GameSession as Session
+participant CommandFactory as Factory
+participant GameController as Controller
+participant CommandExecutor as Executor
+participant "GameCommand" as Command
+participant GameState as State
+participant EventManager as Events
+participant HistoryRecorder as History
+Player -> UI : inspect mill
+UI -> Session : run("inspect mill")
+Session -> Factory : parse(input)
+Factory --> Session : Action(text, InspectCommand)
+Session -> Controller : execute(action)
+Controller -> Executor : execute(state, text, command)
+Executor -> Command : execute(state)
+Command -> State : check access / record evidence
+Command --> Executor : ActionResult
+Executor -> Events : onGameEvent(state, action, result)
+note right of Events : Advance eligible active events\nafter a successful result.
+
+Executor -> History : onGameEvent(state, action, result)
+Executor --> Controller : result
+Controller --> Session : result
+Session --> UI : output lines
+UI --> Player : finding or refusal
+
+@enduml

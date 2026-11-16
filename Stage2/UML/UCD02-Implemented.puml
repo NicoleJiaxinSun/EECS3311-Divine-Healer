@@ -1,0 +1,46 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+left to right direction
+title Implemented use cases
+actor Player
+actor "DeepSeek service" as Model
+rectangle "The Divine Healer's Estate - GUI and CLI" {
+usecase "UC01 Natural-language action" as U1
+usecase "UC02 Investigation" as U2
+usecase "UC03 Negotiation / optional dialogue" as U3
+usecase "UC04 Submit evidence" as U4
+usecase "UC05 Allocate grain" as U5
+usecase "UC06 Request / approve / execute order" as U6
+usecase "UC07 Request appointment" as U7
+usecase "UC08 View / progress / abandon event" as U8
+usecase "UC09 Draft AI plan" as U9
+usecase "UC10 Approve / execute / cancel plan" as U10
+usecase "UC11 History / AI recap" as U11
+usecase "UC12 Save / load" as U12
+}
+Player --> U1
+Player --> U2
+Player --> U3
+Player --> U4
+Player --> U5
+Player --> U6
+Player --> U7
+Player --> U8
+Player --> U9
+Player --> U10
+Player --> U11
+Player --> U12
+Model --> U1
+Model --> U3
+Model --> U9
+Model --> U11
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Current JSON save/load flow
+actor Player
+participant "GUI / CLI" as UI
+participant GameSession as Session
+participant JsonGameStateRepository as Repository
+participant GameController as Controller
+participant AgentPlan as Plan
+participant GameAgent as Agent
+Player -> UI : save file
+UI -> Session : save(file) / run("save ...")
+Session -> Repository : save(file, controller, plan)
+Repository -> Controller : recordedActions()
+Repository -> Plan : snapshot() [if a plan exists]
+Repository -> Repository : write temporary JSON; atomic move
+Repository --> Session : saved or file error
+Session --> UI : result
+Player -> UI : load file
+UI -> Session : load(file) / run("load ...")
+Session -> Repository : load(file)
+Repository -> Repository : validate JSON version and field types
+Repository -> Controller : new GameController()
+loop saved game actions
+Repository -> Controller : execute(action) / abandonEvent()
+end
+Repository -> Plan : restore(snapshot)
+note right of Plan : APPROVED becomes PAUSED.\nNo plan steps run during load.
+
+Repository --> Session : LoadedGame
+Session -> Agent : restore(controller, plan)
+Session --> UI : loaded; refresh view
+note right of Session : Replace active state only\nafter restoration succeeds.
+
+
+@enduml

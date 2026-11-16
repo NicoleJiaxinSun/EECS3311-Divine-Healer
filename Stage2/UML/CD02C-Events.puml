@@ -1,0 +1,63 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Implemented classes - event State pattern
+class EventManager {
+sequence: List<PoliticalEvent>
+activeIndex: int
+onGameEvent(state, action, result)
+abandonActive()
+advance()
+}
+class PoliticalEvent {
+title: String
+goal: Predicate<GameState>
+state: EventState
+activate()
+handleAction(game)
+fail()
+finished()
+describe()
+}
+interface EventState {
+name()
+activate(): EventState
+resolve(goalAchieved): EventState
+fail(): EventState
+finished(): boolean
+}
+enum LockedState {
+LOCKED
+activate()
+}
+enum ActiveState {
+ACTIVE
+resolve(goalAchieved)
+fail()
+}
+enum ResolvedState {
+RESOLVED
+finished()
+}
+enum FailedState {
+FAILED
+finished()
+}
+EventManager *-- "4" PoliticalEvent
+PoliticalEvent --> "1" EventState : delegates
+LockedState ..|> EventState
+ActiveState ..|> EventState
+ResolvedState ..|> EventState
+FailedState ..|> EventState
+LockedState ..> ActiveState : activate
+ActiveState ..> ResolvedState : goal met
+ActiveState ..> FailedState : abandon
+
+@enduml

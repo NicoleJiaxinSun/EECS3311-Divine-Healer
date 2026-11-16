@@ -1,0 +1,79 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Implemented classes - interfaces and agent
+class GameCLI {
+main(args)
+}
+class GameGUI {
+main(args)
+run(command)
+}
+class GameSession {
+controller: GameController
+agent: GameAgent
+run(input)
+save(file)
+load(file)
+}
+class GameController {
+execute(action)
+abandonEvent()
+status()
+evidence()
+events()
+history()
+}
+class GameAgent {
+plan: AgentPlan
+act(input)
+draft(goal)
+plan(operation)
+recap()
+narrateReview(target)
+restore(controller, plan)
+}
+class AgentPlan {
+steps: List<Action>
+status: Status
+nextStepIndex: int
+approve()
+run(controller)
+cancel()
+snapshot()
+restore(snapshot)
+}
+interface LLMClient {
+generate(instructions, input)
+}
+class DeepSeekAdapter {
+generate(instructions, input)
+}
+class LocalConfiguration {
+{static} +apiKey(environmentKey, file)
+}
+class JsonGameStateRepository {
+save(file, controller, plan)
+load(file)
+}
+GameCLI --> GameSession
+GameGUI --> GameSession
+GameSession *-- GameController
+GameSession *-- GameAgent
+GameSession --> JsonGameStateRepository
+GameAgent --> GameController
+GameAgent *-- "0..1" AgentPlan
+GameAgent --> LLMClient
+DeepSeekAdapter ..|> LLMClient
+DeepSeekAdapter --> LocalConfiguration
+JsonGameStateRepository --> GameController : rebuilds
+JsonGameStateRepository --> AgentPlan : restores
+
+@enduml

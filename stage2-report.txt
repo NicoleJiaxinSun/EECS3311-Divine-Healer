@@ -1,0 +1,1245 @@
+
+EECS3311 - Stage 2 Implementation Report
+========================================
+
+The Divine Healer's Estate
+
+Prepared November 15, 2026. This text edition describes the current repository,
+including improvements committed after the November 10 deadline. It does not claim that
+all current functionality was present by that deadline.
+
+Repository
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer
+
+Submission status is incomplete. The current code, basic verification, feature mapping,
+updated UML, and local configuration are available. Feature demonstration recordings,
+their accessible links and timestamps, real-model execution evidence, and development
+token and financial usage figures remain pending. The first two weekly code-activity
+periods have no qualifying commits in the inspected main history.
+
+This edition was prepared as a text file at the student's request. The Stage 2
+instructions specify a PDF/Word report in the body and PDF in the submission checklist.
+The text is ready for review and later conversion if needed.
+
+
+1. Project overview and implementation status
+=============================================
+
+The application serves players of an investigation and political story game set in a
+healer's estate. Players discover a duplicate labor charge, present evidence to the
+steward, request a relief appointment, distribute grain, and correct the official
+record. Four events track progress and permit failed endings. Both Java CLI and Swing
+desktop interfaces expose the game functions.
+
+The LLM adapter is configured for DeepSeek deepseek-flash through its Chat Completions
+API. GameAgent uses model responses to interpret natural-language intent, draft ordered
+command proposals, narrate NPC dialogue, and summarize recent history. GameCommand
+execution and domain rules determine actual effects. A draft plan changes no world
+state. Running requires approval, stops on a refused step, and retries from that step
+only after renewed approval.
+
+The submitted scenario implements 12 Stage 1 feature entries. The scenario is
+intentionally small, with the steward and healer, a public mill record, a restricted
+manor record, 10 starting grain, one relief recipient, and one correction order. These
+concrete values and scope choices are documented below. Typed game behavior has been
+exercised. Live DeepSeek behavior is unverified because no valid key was available for
+the recorded runs.
+
+Build and entry points
+  JDK 17 or newer and Maven 3.9 or newer. Run mvn test, mvn compile exec:exec for CLI,
+  or mvn compile exec:exec -Dgame.mainClass=estate.GameGUI for Swing.
+
+Local setup
+  Copy config.example.json to config.local.json and enter a real key locally.
+  DeepSeekAdapter reads LocalConfiguration.apiKey when an AI request is made. A
+  nonblank DEEPSEEK_API_KEY environment value takes precedence. The local file and
+  .env variants are ignored by Git. Only placeholder configuration is submitted.
+
+
+2. Feature to implementation mapping
+====================================
+
+Source paths below are relative to src/main/java/estate/. Every F-number is an original
+Stage 1 feature, paired with its same-numbered use case. Implemented means the code path
+exists and has local verification. AI-related status entries explicitly retain the
+pending real-provider verification. Video references point to the planned segments in
+Section 7, whose actual URLs and timestamps are not yet available.
+
+
+F01 - Natural-language actions
+==============================
+
+Stage 1 reference and current status
+  F01 / UC01. Implemented; real-provider behavior pending.
+
+Classification
+  Hybrid.
+
+Implemented classes/files and responsibilities
+  GameAgent.java interprets intent and restricts the proposal to one action;
+  LLMClient.java is the provider contract; DeepSeekAdapter.java sends the request;
+  CommandFactory.java validates syntax; GameController.java and CommandExecutor.java
+  apply the same command path used by typed actions.
+
+Key methods
+  GameSession.run; GameAgent.act, propose, parsePlanStep; LLMClient.generate;
+  CommandFactory.parse; CommandExecutor.execute.
+
+Design patterns
+  Adapter, Command, Observer.
+
+Input-to-result collaboration
+  The player selects AI action in Swing or types act <text>. The visible status,
+  discovered evidence, events, and recent history are sent to the model. A validated
+  proposal becomes a command. Java checks permissions and displays the actual result.
+  Ambiguous or unsupported proposals and provider failures prevent that action.
+
+Change from Stage 1
+  Interpreter duties moved into GameAgent. The intended natural-language user need is
+  retained; classes were consolidated for the small application.
+
+Verification
+  BT-01 to BT-04, BT-08; AgentContextTest; DeepSeekAdapterTest.
+
+Demonstration
+  Segment D01 in Section 7. Video URL and timestamp pending.
+
+
+F02 - Investigation
+===================
+
+Stage 1 reference and current status
+  F02 / UC02. Implemented.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  InspectCommand.java checks existence and access with LaborRegister.java, and
+  GameState.java stores each discovered evidence item once.
+
+Key methods
+  GameSession.run; InspectCommand.execute; LaborRegister.contains, inspect;
+  GameState.recordEvidence, evidenceFor, evidence.
+
+Design patterns
+  Command, Observer.
+
+Input-to-result collaboration
+  inspect mill returns the duplicate-charge finding and records it. inspect manor
+  returns an access refusal, while repeated mill inspection preserves one evidence
+  entry. After correction, reinspection shows the current record and the original
+  evidence remains available.
+
+Change from Stage 1
+  The record domain is represented by two starter households. Concrete story values
+  were flexible in Stage 1; evidence, access, and deduplication behavior are retained.
+
+Verification
+  GameRulesTest.investigationChecksAccessAndRecordsUniqueEvidence;
+  GameRulesTest.correctionOrderRequiresApprovalAndChangesRecordOnlyOnce.
+
+Demonstration
+  Segment D02 in Section 7. Video URL and timestamp pending.
+
+
+F03 - NPC negotiation
+=====================
+
+Stage 1 reference and current status
+  F03 / UC03. Implemented with optional AI narration; live narration pending.
+
+Classification
+  Hybrid.
+
+Implemented classes/files and responsibilities
+  TalkCommand.java invokes NPC.java; each NPC delegates its decision to a
+  NegotiationStrategy.java policy supplied in GameState.java. GameAgent.java
+  optionally asks the LLM to narrate the already determined result.
+
+Key methods
+  TalkCommand.review, execute; NPC.negotiate; NegotiationStrategy.evaluate;
+  GameAgent.narrateReview.
+
+Design patterns
+  Command, Strategy, Adapter, Observer.
+
+Input-to-result collaboration
+  talk steward applies the fixed evidence-based decision. talk-ai steward first runs
+  the same negotiation, records its outcome, and then requests a short dialogue line.
+  The rule result is displayed before the optional narration. Provider or output
+  failure retains the decision and its history entry.
+
+Change from Stage 1
+  Named strategy classes in Stage 1 became lambdas implementing the same strategy
+  interface. Fixed dialogue remains available and optional AI dialogue was added
+  explicitly through talk-ai.
+
+Verification
+  GameRulesTest.stewardRequiresRelevantEvidenceToReviewAndAppoint; NpcDialogueTest;
+  BT-10 and BT-11.
+
+Demonstration
+  Segment D03 in Section 7. Video URL and timestamp pending.
+
+
+F04 - Evidence submission
+=========================
+
+Stage 1 reference and current status
+  F04 / UC04. Implemented.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  TalkCommand.java checks that GameState.java contains the evidence. NPC.java checks
+  relevance and inserts accepted evidence into its knowledge set. EventManager.java
+  observes the resulting state.
+
+Key methods
+  GameSession.run; TalkCommand.execute; GameState.hasEvidence; NPC.learn, knows;
+  EventManager.onGameEvent.
+
+Design patterns
+  Command, Observer.
+
+Input-to-result collaboration
+  submit mill steward first requires discovery of mill evidence. The steward learns it
+  once. Undiscovered evidence, unknown NPCs, and evidence irrelevant to the healer are
+  refused. The evidence can then change the steward's later decision.
+
+Change from Stage 1
+  Evidence IDs and recipients are concrete starter data. The requirement to validate
+  discovery, relevance, and duplicate submission is retained.
+
+Verification
+  GameRulesTest.stewardRequiresRelevantEvidenceToReviewAndAppoint; BT-05.
+
+Demonstration
+  Segment D04 in Section 7. Video URL and timestamp pending.
+
+
+F05 - Resource allocation
+=========================
+
+Stage 1 reference and current status
+  F05 / UC05. Implemented with a focused grain scenario.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  AllocateCommand.java checks rank and recipient. Inventory.java validates a positive
+  quantity against stock and records total delivery to the mill.
+
+Key methods
+  GameSession.run; AllocateCommand.execute; GameState.isReliefOfficer;
+  Inventory.allocateGrainToMill, grain, millGrainDelivered.
+
+Design patterns
+  Command, Observer.
+
+Input-to-result collaboration
+  allocate 3 mill requires the relief officer role and sufficient grain. On success
+  stock falls and delivered grain rises together. Unknown recipients, invalid
+  quantities, insufficient stock, and lack of authority produce refusal without
+  deduction. EventManager checks the delivery milestone.
+
+Change from Stage 1
+  The general resource-allocation design is narrowed to grain and the mill household.
+  The original relief user need remains supported; broader recipients and resources
+  are outside the current scenario.
+
+Verification
+  GameRulesTest.allocationChecksAuthorityRecipientAndStockBeforeDeducting; BT-06.
+
+Demonstration
+  Segment D05 in Section 7. Video URL and timestamp pending.
+
+
+F06 - Official orders
+=====================
+
+Stage 1 reference and current status
+  F06 / UC06. Implemented with one correction order.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  IssueOrderCommand.java represents request, approval, and execution steps.
+  GameState.java stores the order status and rank. LaborRegister.java applies the
+  duplicate-charge correction only during valid execution.
+
+Key methods
+  IssueOrderCommand.execute, advance, executeApprovedOrder; GameState.correctionOrder,
+  setCorrectionOrder; LaborRegister.correctMillCharge.
+
+Design patterns
+  Command, Observer.
+
+Input-to-result collaboration
+  A relief officer invokes order request, order approve, and order execute. Each step
+  checks its predecessor. Execution changes the register once, and repeated or
+  premature execution is refused. Request and approval alone do not correct it.
+
+Change from Stage 1
+  Central GameRules checks moved into commands and domain methods. The official order
+  scope is one labor correction, while authority and lifecycle checks remain.
+
+Verification
+  GameRulesTest.correctionOrderRequiresApprovalAndChangesRecordOnlyOnce.
+
+Demonstration
+  Segment D06 in Section 7. Video URL and timestamp pending.
+
+
+F07 - Political appointment
+===========================
+
+Stage 1 reference and current status
+  F07 / UC07. Implemented with an evidence-based appointment.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  TalkCommand.java asks the steward's NPC.java policy whether the request qualifies
+  and updates the rank in GameState.java after acceptance.
+
+Key methods
+  TalkCommand.requestAppointment; NPC.negotiate; GameState.isReliefOfficer,
+  appointReliefOfficer.
+
+Design patterns
+  Strategy, Command, Observer.
+
+Input-to-result collaboration
+  appoint checks the steward's evidence condition. Missing evidence gives refusal and
+  visitor rank remains. After accepted submission, the player becomes relief officer
+  and gains grain and correction-order authority. Repetition grants no additional rank
+  or resources.
+
+Change from Stage 1
+  The original separate PoliticalSystem listener is replaced by a guarded appointment
+  operation in TalkCommand. A single role meets the scenario's authority need.
+
+Verification
+  GameRulesTest.stewardRequiresRelevantEvidenceToReviewAndAppoint.
+
+Demonstration
+  Segment D07 in Section 7. Video URL and timestamp pending.
+
+
+F08 - Political event progression
+=================================
+
+Stage 1 reference and current status
+  F08 / UC08. Implemented with four concrete milestones.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  EventManager.java sequences four PoliticalEvent.java objects. Each owns a goal
+  predicate and delegates lifecycle behavior to EventState.java and four concrete
+  states.
+
+Key methods
+  EventManager.onGameEvent, abandonActive, advance, events; PoliticalEvent.activate,
+  handleAction, fail, finished; EventState.activate, resolve, fail, finished.
+
+Design patterns
+  Observer, State.
+
+Input-to-result collaboration
+  Successful command outcomes trigger the current goal check. Evidence presentation,
+  appointment, three delivered grain, and record correction resolve milestones in
+  order. An event can fail through event abandon and unlock its successor. Finished
+  outcomes remain fixed, and newly unlocked events check already achieved facts.
+
+Change from Stage 1
+  Four event predicates implement the political story within the starter scenario.
+  Concrete State objects replaced an initial enum map to align with the Stage 1 roles.
+
+Verification
+  GameRulesTest.milestonesUnlockInOrderAndKeepFailedEndings; GamePersistenceTest.
+
+Demonstration
+  Segment D08 in Section 7. Video URL and timestamp pending.
+
+
+F09 - AI plan generation
+========================
+
+Stage 1 reference and current status
+  F09 / UC09. Implemented; real-provider behavior pending.
+
+Classification
+  AI-based.
+
+Implemented classes/files and responsibilities
+  GameAgent.java sends a goal and visible context through LLMClient.java, validates
+  all proposed steps using CommandFactory.java, and creates AgentPlan.java.
+
+Key methods
+  GameAgent.draft, propose, parsePlanStep; LLMClient.generate; CommandFactory.parse;
+  AgentPlan.describe.
+
+Design patterns
+  Adapter, Command.
+
+Input-to-result collaboration
+  goal <text> creates a draft with up to eight supported commands. Drafting changes
+  neither world state nor action history. One unfinished plan is allowed at a time.
+  Malformed output, unsupported steps, and provider errors leave the existing game
+  untouched. The draft is displayed for review.
+
+Change from Stage 1
+  Separate AgentPlanner and ActionInterpreter classes were consolidated into
+  GameAgent. The planning need and explicit review stage are retained.
+
+Verification
+  BT-05 and BT-06; AgentContextTest; GamePersistenceTest.
+
+Demonstration
+  Segment D09 in Section 7. Video URL and timestamp pending.
+
+
+F10 - Approved plan execution
+=============================
+
+Stage 1 reference and current status
+  F10 / UC10. Implemented.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  AgentPlan.java stores steps, status, and the next-step cursor. It invokes
+  GameController.java, which uses CommandExecutor.java and the regular game rules.
+
+Key methods
+  GameAgent.plan; AgentPlan.approve, run, cancel, describe; GameController.execute.
+
+Design patterns
+  Command, Observer.
+
+Input-to-result collaboration
+  The player reviews plan show, selects plan approve, then plan run. Successful steps
+  advance the cursor; a refused step pauses execution without undoing prior successes.
+  After resolving the cause, approval and run retry the paused step. Cancellation ends
+  the plan. Loading a previously approved plan requires approval.
+
+Change from Stage 1
+  AgentExecutor responsibilities moved into AgentPlan. This keeps execution progress
+  with its lifecycle data and preserves the original approval and failure behavior.
+
+Verification
+  BT-05 and BT-06; GamePersistenceTest plan-resume and lifecycle cases.
+
+Demonstration
+  Segment D10 in Section 7. Video URL and timestamp pending.
+
+
+F11 - History and recap
+=======================
+
+Stage 1 reference and current status
+  F11 / UC11. Implemented; real-provider recap pending.
+
+Classification
+  Hybrid.
+
+Implemented classes/files and responsibilities
+  HistoryRecorder.java stores game action text and ActionResult outcomes.
+  GameController.java returns the history and GameAgent.java requests an optional
+  summary through LLMClient.java.
+
+Key methods
+  HistoryRecorder.onGameEvent, history, recordedActions; GameController.history;
+  GameAgent.recap, displayText, recentHistory.
+
+Design patterns
+  Observer, Adapter.
+
+Input-to-result collaboration
+  history shows successful and refused game actions. Read-only queries and usage
+  errors are excluded. recap summarizes up to 12 recent records. Empty history
+  requires no AI call; provider errors leave structured history available. Valid prose
+  line breaks are normalized for display.
+
+Change from Stage 1
+  Recap is bounded to the latest 12 records. Command validation and prose formatting
+  use distinct rules after a multiline recap regression exposed a shared-check defect.
+
+Verification
+  GameRulesTest.historyRecordsGameOutcomesButSkipsReadOnlyQueriesAndUsageErrors; BT-07
+  and BT-09.
+
+Demonstration
+  Segment D11 in Section 7. Video URL and timestamp pending.
+
+
+F12 - Save and load
+===================
+
+Stage 1 reference and current status
+  F12 / UC12. Implemented with command-replay persistence.
+
+Classification
+  Deterministic.
+
+Implemented classes/files and responsibilities
+  GameSession.java calls JsonGameStateRepository.java. The versioned save stores
+  recorded actions and an AgentPlan snapshot, then rebuilds a fresh GameController
+  before replacing the active session.
+
+Key methods
+  GameSession.save, load; JsonGameStateRepository.save, load, validateTypes;
+  HistoryRecorder.recordedActions; AgentPlan.snapshot, restore; GameAgent.restore.
+
+Design patterns
+  Command replay; supporting repository role, with no extra design pattern claimed.
+
+Input-to-result collaboration
+  save <path> writes a temporary JSON file and atomically replaces the target. load
+  <path> validates version, field types, command syntax, and plan progress, replays
+  actions into a fresh controller, then restores the plan cursor. It does not call the
+  model or run plan steps. A failed load preserves the active game.
+
+Change from Stage 1
+  The Stage 1 repository interface was omitted in this small implementation. Command
+  replay replaces direct domain serialization to reuse validation. Save compatibility
+  depends on versioned command semantics.
+
+Verification
+  GamePersistenceTest round trip, type validation, lifecycle, cursor, and approval
+  checks.
+
+Demonstration
+  Segment D12 in Section 7. Video URL and timestamp pending.
+
+
+3. Implemented design patterns and updated UML
+==============================================
+
+
+Pattern - Command
+=================
+
+Design problem
+  Game actions must have one execution path across typed UI input, AI proposals, and
+  plans.
+
+Participants and roles
+  GameCommand is the command interface. InspectCommand, TalkCommand, AllocateCommand,
+  and IssueOrderCommand are concrete commands. CommandFactory parses requests into
+  Action records. CommandExecutor is the invoker, and GameState, NPC, Inventory, and
+  LaborRegister act as domain receivers.
+
+Relevant files and methods
+  GameCommand.execute; CommandFactory.parse; CommandExecutor.execute; each concrete
+  command's execute method.
+
+Collaboration and benefit
+  The factory validates syntax and the executor invokes the command against the
+  current domain state. Plans call the same execution path. This centralizes
+  invocation and prevents UI code from granting authority or directly deducting stock.
+
+Relationship to Stage 1
+  The pattern matches Stage 1. The central GameRules class is replaced by checks
+  inside commands and domain operations.
+
+
+Pattern - Adapter
+=================
+
+Design problem
+  Provider HTTP details and JSON envelopes must be isolated from interpretation,
+  planning, and narration.
+
+Participants and roles
+  LLMClient is the target interface, DeepSeekAdapter is the adapter, and the DeepSeek
+  Chat Completions API is the external adaptee. GameAgent is the client.
+
+Relevant files and methods
+  LLMClient.generate; DeepSeekAdapter.generate; LocalConfiguration.apiKey supports
+  local setup.
+
+Collaboration and benefit
+  GameAgent passes instructions and context to the interface. The adapter builds the
+  request, performs HTTP, checks completion status, parses strict JSON, and maps
+  failures to IOException. Fixture clients can verify agent rules through the same
+  interface.
+
+Relationship to Stage 1
+  The pattern matches Stage 1. The provider and model remain explicit; local JSON
+  configuration was added to meet Stage 2 setup requirements.
+
+
+Pattern - Strategy
+==================
+
+Design problem
+  NPC cooperation should follow different policies while preserving one negotiation
+  entry point.
+
+Participants and roles
+  NegotiationStrategy is the strategy interface. NPC is the context. GameState
+  constructs two concrete lambda policies, a cooperative healer and a steward who
+  requires knowledge of mill evidence.
+
+Relevant files and methods
+  NegotiationStrategy.evaluate; NPC.negotiate; policy definitions in GameState.
+
+Collaboration and benefit
+  NPC delegates acceptance to its configured policy using an immutable copy of known
+  evidence. TalkCommand is independent of the policy details. AI dialogue describes
+  the resulting decision after it has been determined.
+
+Relationship to Stage 1
+  Stage 1 named CooperativeStrategy and SelfInterestedStrategy classes. The
+  implementation uses lambdas through the same interface because these policies are
+  short and stateless. This preserves interchangeable decision policies without adding
+  empty wrapper classes.
+
+
+Pattern - State
+===============
+
+Design problem
+  Only active political events may resolve or fail; completed endings must remain
+  fixed.
+
+Participants and roles
+  PoliticalEvent is the context and EventState the state interface. LockedState,
+  ActiveState, ResolvedState, and FailedState are concrete states implemented as enum
+  singletons. EventManager sequences the event contexts.
+
+Relevant files and methods
+  PoliticalEvent.activate, handleAction, fail, finished; EventState.activate, resolve,
+  fail, finished; EventManager.advance.
+
+Collaboration and benefit
+  LockedState permits activation. ActiveState transitions to resolved when its goal
+  holds, or failed when abandoned. Terminal states retain themselves and report
+  finished. The manager unlocks successors and tests goals without editing state
+  internals.
+
+Relationship to Stage 1
+  The current implementation matches the Stage 1 state roles. An early enum status map
+  was replaced by state objects on November 15; this alignment occurred after the
+  stated submission deadline.
+
+
+Pattern - Observer
+==================
+
+Design problem
+  Action outcomes must update history and story progress without each command directly
+  depending on every consequence service.
+
+Participants and roles
+  GameEventListener is the observer interface. EventManager and HistoryRecorder are
+  concrete observers. CommandExecutor holds the listener collection and dispatches the
+  outcome after each command.
+
+Relevant files and methods
+  CommandExecutor.execute; GameEventListener.onGameEvent; EventManager.onGameEvent;
+  HistoryRecorder.onGameEvent.
+
+Collaboration and benefit
+  The executor sends both accepted and refused results to its listeners. EventManager
+  checks only successful results for milestone progress, while HistoryRecorder stores
+  both outcomes. Concrete commands remain focused on their domain operation.
+
+Relationship to Stage 1
+  Observer matches Stage 1, with one change. The separate PoliticalSystem observer was
+  removed and appointment validation now runs in TalkCommand.
+
+All pattern participant names above correspond to .java files under
+src/main/java/estate. The repository does not claim persistence itself as a sixth
+pattern.
+
+Updated class diagram views
+  Stage2/UML/CD02A-Interfaces-Agent.png and .puml; CD02B-Commands-Domain.png and
+  .puml; CD02C-Events.png and .puml.
+
+Updated use-case and sequence diagrams
+  Stage2/UML/UCD02-Implemented; SD08-Action; SD09-Plan; SD10-Save-Load; SD11-NPC-
+  Dialogue, each supplied as PNG and editable PlantUML. Stage2/UML/README.md indexes
+  all diagrams.
+
+The three class views together describe the implemented modules. Method visibility and
+supporting nested record/enum details are omitted for readability. The original Stage 1
+files are preserved as a baseline. The current diagrams replace the affected interface,
+AI planning, observer, persistence, NPC, and event interactions for implementation
+review.
+
+
+4. Changes and rationale
+========================
+
+Affected features and use cases
+  F01, F09, F11 / UC01, UC09, UC11
+
+Original design
+  Separate ActionInterpreter and AgentPlanner with controller-based recap
+
+Implemented change
+  GameAgent combines interpretation, planning, narration, and recap; GameSession
+  routes both UIs
+
+Reason
+  Keep a small application's AI boundary in one service and share routing
+
+Impact on classes, methods, and patterns
+  Command and Adapter roles are retained. GameAgent.act, draft, recap, and
+  GameSession.run replace the original service entry points.
+
+Affected features and use cases
+  F10 / UC10
+
+Original design
+  AgentExecutor executes approved plans with a separate AgentPlan
+
+Implemented change
+  AgentPlan.run owns execution cursor and lifecycle; it calls GameController.execute
+
+Reason
+  Keep approval, pause, retry, and cursor data together
+
+Impact on classes, methods, and patterns
+  Command execution is reused. Existing successful steps remain recorded on failure.
+
+Affected features and use cases
+  F03 / UC03
+
+Original design
+  Concrete named negotiation policies plus optional AI dialogue
+
+Implemented change
+  Two NegotiationStrategy lambdas; typed talk and explicit talk-ai operation
+
+Reason
+  Small policies need no additional wrapper classes, and explicit narration exposes
+  fallback clearly
+
+Impact on classes, methods, and patterns
+  Strategy roles remain. NPC.negotiate returns the rule result before
+  GameAgent.narrateReview invokes the Adapter.
+
+Affected features and use cases
+  F05-F08 / UC05-UC08
+
+Original design
+  General resources, official orders, political rank, and four political events
+
+Implemented change
+  Grain relief for the mill, one correction order, one role, and four goal-based
+  milestones
+
+Reason
+  Create a complete playable scenario with inspectable rules and finite outcomes
+
+Impact on classes, methods, and patterns
+  This narrows story scope while retaining the original relief, authority, and
+  progression needs. Inventory, IssueOrderCommand, TalkCommand.requestAppointment, and
+  EventManager implement those choices through Command, Strategy, State, and Observer.
+
+Affected features and use cases
+  F06-F08 / UC06-UC08
+
+Original design
+  Central GameRules and a separate PoliticalSystem consequence listener
+
+Implemented change
+  Local guards in domain commands and appointment in TalkCommand
+
+Reason
+  Keep each precondition beside the operation it protects in the present scenario
+
+Impact on classes, methods, and patterns
+  No separate GameRules or PoliticalSystem class is submitted. Rule ownership is
+  explicitly mapped in Section 2; State and Observer handle event progression.
+
+Affected features and use cases
+  F08 / UC08
+
+Original design
+  PoliticalEvent plus EventState with four concrete states
+
+Implemented change
+  Early status-map implementation replaced by PoliticalEvent and state singletons
+
+Reason
+  Align lifecycle ownership with the original State design
+
+Impact on classes, methods, and patterns
+  EventManager advances the sequence, while PoliticalEvent delegates transitions. This
+  replacement was committed on November 15.
+
+Affected features and use cases
+  F11 / UC11
+
+Original design
+  Action history with optional recap
+
+Implemented change
+  Structured history plus recap of the latest 12 entries; line breaks normalized for
+  prose
+
+Reason
+  Bound request context and accept ordinary multiline recaps
+
+Impact on classes, methods, and patterns
+  HistoryRecorder retains all session actions. GameAgent.recap and displayText
+  implement the Adapter call and text normalization.
+
+Affected features and use cases
+  F12 / UC12
+
+Original design
+  GameStateRepository interface and direct domain save/restore
+
+Implemented change
+  Concrete JsonGameStateRepository with versioned command replay and plan snapshots
+
+Reason
+  Reuse deterministic command rules when rebuilding a fresh game
+
+Impact on classes, methods, and patterns
+  The separate repository interface is omitted. JsonGameStateRepository.load validates
+  the full result before GameSession swaps controllers and reconnects GameAgent.
+
+Affected features and use cases
+  Shared UI and configuration / supports F01-F12
+
+Original design
+  Swing and CLI as alternative interfaces; provider API configuration
+
+Implemented change
+  Shared GameSession, background Swing commands, persistent status display,
+  config.example.json and ignored config.local.json
+
+Reason
+  Keep both interfaces consistent and let a reviewer configure AI without editing
+  source
+
+Impact on classes, methods, and patterns
+  No new counted feature is claimed. GameSession.run, GameGUI.run,
+  DeepSeekAdapter.generate, and LocalConfiguration.apiKey support the existing
+  features.
+
+
+5. AI tools and collaboration log
+=================================
+
+The following records distinguish observed development activity from data that has not
+been supplied. Token and monetary totals must be completed from the developer's account
+or billing records. No usage figures are estimated.
+
+OpenAI Codex
+  Model family GPT-6. An exact per-interaction serving variant was not recorded. Used
+  to inspect Stage 1, generate and refactor Java, diagnose failures, prepare tests,
+  run verification, and assemble submission documentation. Affected modules include
+  the CLI, Swing, commands, agent, persistence, events, JUnit, and KUMA runner. Total
+  tokens and financial cost are unavailable in this repository and remain pending.
+
+DeepSeek
+  Configured runtime model deepseek-flash. Used by the submitted application for
+  action proposals, plan drafts, NPC dialogue, and recap. The recorded verification
+  runs used fixtures and a local HTTP server. No successful real DeepSeek call is
+  evidenced by those runs. Actual token usage and account charges are not supplied; no
+  monetary total is claimed.
+
+KUMA
+  SDK 0.3.9, local case and judge providers. Used to capture responses and check
+  behavior. The local judge uses deterministic checks and no LLM. Hosted service usage
+  or billing is not part of the recorded local runs.
+
+Task
+  Incremental implementation
+
+Input or instruction
+  User asked for five separate updates, pausing after each for GitHub.
+
+AI contribution
+  Codex generated the investigation, evidence, authority, event, and AI slices,
+  compiled them, and exercised normal and refused operations.
+
+Human contribution evidenced in the chat
+  The user chose incremental delivery and requested each successive update. No
+  unrecorded manual source review is claimed.
+
+Outcome
+  Five commits c9babf2, 9e11218, 10090b2, 4cdbc21, and 48822f6.
+
+Task
+  GitHub publication
+
+Input or instruction
+  User supplied the repository URL and explicitly asked Codex to upload.
+
+AI contribution
+  Codex checked the remote baseline, committed each slice, pushed main, and checked
+  the remote commit ID.
+
+Human contribution evidenced in the chat
+  The user selected the repository and authorized publication, then requested the
+  later updates individually.
+
+Outcome
+  Source and tests were pushed directly to the same course repository.
+
+Task
+  Basic Java verification
+
+Input or instruction
+  User requested continued updates after save/load was implemented.
+
+AI contribution
+  Codex converted game-rule and save/load checks into JUnit tests and corrected
+  configuration, context, and persistence issues during later work.
+
+Human contribution evidenced in the chat
+  The user directed continued work. These logs do not substitute for the student's
+  responsibility to understand and review the code.
+
+Outcome
+  The current suite passes 28/28.
+
+Task
+  Behavioral failure diagnosis
+
+Input or instruction
+  User requested the next update following deterministic tests.
+
+AI contribution
+  Codex built local KUMA cases, observed a two-line recap failure, separated prose
+  normalization from command validation, and reran the cases.
+
+Human contribution evidenced in the chat
+  The user approved the next development increment through the chat request.
+
+Outcome
+  The baseline 8/9 became 9/9; later NPC cases expanded the suite to 11/11.
+
+Task
+  Stage 2 requirement review
+
+Input or instruction
+  User supplied Project-Stage2-Instruction.pdf and asked whether the project was
+  complete, then requested urgent updates.
+
+AI contribution
+  Codex compared the actual repository with the checklist, identified missing
+  materials and weekly deficiencies, and prepared configuration, current UML, and this
+  seven-section report.
+
+Human contribution evidenced in the chat
+  The user selected a text report and explicitly declined PDF generation.
+
+Outcome
+  Current text report, updated UML, and safe local configuration are provided. Videos,
+  cost data, and live-model results remain pending.
+
+
+6. Development and verification summary
+=======================================
+
+Weekly dates below use Toronto local time. The inspected main history has no code
+commits in the first two periods and nine in the third period. A meaningful code commit
+is required in each separate week; later work does not fill earlier periods. The
+instruction specifies one combined five-point penalty when any period is deficient.
+
+Period 1 - October 20-26, 2026
+  Required 5. Observed 0. Not satisfied.
+
+Period 2 - October 27-November 2, 2026
+  Required 5. Observed 0. Not satisfied.
+
+Period 3 - November 3-9, 2026
+  Required 5. Observed 9 code commits. The listed changes affect implementation or
+  tests. The timeline below is the recorded history; code review determines
+  meaningfulness.
+
+c9babf2 | November 8 | CLI investigation and evidence
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/c9babf2
+
+9e11218 | November 8 | NPC negotiation and evidence submission
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/9e11218
+
+10090b2 | November 8 | Appointment, grain allocation, correction orders
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/10090b2
+
+4cdbc21 | November 8 | Political events and action history
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/4cdbc21
+
+48822f6 | November 8 | DeepSeek actions, plans, and recap
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/48822f6
+
+73c2fdd | November 9 | Swing GUI
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/73c2fdd
+
+2f8e40d | November 9 | JSON saves and plan restoration
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/2f8e40d
+
+7a87f4c | November 9 | Game rules and persistence JUnit suite
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/7a87f4c
+
+f6f8a68 | November 9 | KUMA cases and multiline recap fix
+
+https://github.com/NicoleJiaxinSun/EECS3311-Divine-Healer/commit/f6f8a68
+
+Commits on November 10 or November 15 are outside the three weekly periods. Later tests,
+Maven setup, stronger persistence validation, status display, and State-pattern
+alignment are improvements in the present repository. They are not counted toward
+earlier weekly activity. The course submission deadline is November 10, 2026; acceptance
+of later changes is unconfirmed.
+
+Verification performed
+  Maven with Java 17 target passed 28/28 JUnit tests. The local KUMA suite passed
+  11/11. Four Python tests of the local judge passed. A desktop smoke check exercised
+  investigation, history, rank changes, delivery, refusal, order execution, and status
+  refresh after load. The Maven CLI launch was tested with input and clean exit.
+
+JUnit coverage
+  GameRulesTest 6; GamePersistenceTest 9; DeepSeekAdapterTest 5; NpcDialogueTest 4;
+  AgentContextTest 1; LocalConfigurationTest 3. Model responses are fixed or served by
+  a local HTTP test server in these checks.
+
+Important defects and corrections
+  Multiline recap was rejected as invalid; normalize prose line breaks while keeping
+  strict command checks. Coerced JSON save types were accepted; validate field types
+  before replay. Generic AI errors could pass refusal tests; require a real request
+  rejection and classify provider outages as insufficient evidence. Long history hid
+  evidence from the planner; include discovered evidence and current event state
+  alongside the latest history.
+
+Remaining limitations
+  No real DeepSeek execution is recorded. Optional generated dialogue can require
+  review for factual faithfulness. The scenario is small. Save compatibility relies on
+  stable command semantics. The demonstration recordings and cost totals are
+  incomplete, and early weekly activity requirements were missed.
+
+Reproduction
+  Run mvn test. KUMA setup and run commands are in Stage3/Behavior-Evaluation.md. Use
+  its --report argument to retain inputs, actual responses, judgments, and failures.
+  Real-model cases require valid credentials and --live.
+
+
+7. Demonstration index and recording plan
+=========================================
+
+No demonstration video is currently recorded in the repository or supplied through an
+accessible external link. Every entry below is planned and has Video URL = PENDING and
+Timestamp = PENDING. This is a recording index, not evidence that the demonstrations
+have been completed. Record the actual application with both GUI and CLI visible across
+the set. Keep key-entry screens, configuration files, and credentials out of recordings.
+
+Segment
+  D01 / F01
+
+Interface
+  CLI
+
+Invocation
+  act Inspect the mill labor record
+
+Content to record
+  Show a successful live model interpretation and an unsupported or ambiguous request.
+  Explain that the model proposes the command while Java determines the outcome.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D02 / F02
+
+Interface
+  GUI Command mode
+
+Invocation
+  inspect mill; inspect manor; inspect mill; evidence
+
+Content to record
+  Show discovery, access refusal, and deduplication.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D03 / F03
+
+Interface
+  GUI Command mode
+
+Invocation
+  talk steward; talk-ai steward; talk-ai healer
+
+Content to record
+  Show rule decisions, live optional dialogue, and fallback when the provider is
+  unavailable.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D04 / F04
+
+Interface
+  CLI
+
+Invocation
+  submit mill steward before discovery; inspect mill; submit mill steward twice
+
+Content to record
+  Show missing-evidence refusal, successful learning, and duplicate handling.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D05 / F05
+
+Interface
+  GUI Command mode
+
+Invocation
+  allocate 3 mill before appointment; then obtain appointment; allocate 3 mill
+
+Content to record
+  Show authority refusal, stock and delivery updates, and an allocation above
+  remaining stock.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D06 / F06
+
+Interface
+  CLI
+
+Invocation
+  order request; order execute; order approve; order execute; order execute
+
+Content to record
+  Use an appointed player. Show premature execution refusal, one correction, and
+  repeat refusal.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D07 / F07
+
+Interface
+  CLI
+
+Invocation
+  appoint; inspect mill; submit mill steward; appoint
+
+Content to record
+  Use a fresh game. Show the unmet evidence condition and subsequent rank change.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D08 / F08
+
+Interface
+  GUI Command mode
+
+Invocation
+  events; complete relevant actions; events; event abandon; events
+
+Content to record
+  Show sequential unlocking, a resolved event, and a retained failed ending.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D09 / F09
+
+Interface
+  GUI AI goal mode
+
+Invocation
+  Get appointed as relief officer and deliver three grain to the mill
+
+Content to record
+  Use the live model. Show the numbered draft and unchanged history before approval.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D10 / F10
+
+Interface
+  GUI plan controls
+
+Invocation
+  Show plan; Run plan before approval; Approve plan; Run plan
+
+Content to record
+  Show approval gating. For a draft containing a refused step, demonstrate pause,
+  repair, renewed approval, resume, and preserved completed steps.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D11 / F11
+
+Interface
+  CLI
+
+Invocation
+  history; recap after successful and refused actions
+
+Content to record
+  Show structured history and a real AI recap. Explain the recent-history limit.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+Segment
+  D12 / F12
+
+Interface
+  GUI Save/Load buttons and CLI
+
+Invocation
+  save demo.json; change the game; load demo.json
+
+Content to record
+  Show restored rank, stock, evidence, events, history, and plan progress. Show that a
+  malformed file is refused while the active session stays available.
+
+Video URL and timestamp
+  PENDING - no recording supplied.
+
+
+Final submission checks still to complete
+=========================================
+
+Record and publish every feature demonstration with accessible links and timestamps.
+Verify the live DeepSeek behavior. Supply measured development token and monetary usage
+from account records. Review the source and report personally, and submit the repository
+URL through the course system. Confirm the course's acceptance of late changes and the
+requested report format.

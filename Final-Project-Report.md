@@ -224,3 +224,18 @@ goals against the current game state.
 The existing JUnit suite passed 25/25, including event sequencing,
 failed endings, and restoration of prior event outcomes from saves.
 The offline KUMA suite passed 11/11.
+
+## Stage 2-specific submission preparation
+
+The seven-section stage2-report.txt now maps all 12 features to
+responsibilities, methods, patterns, use cases, verification, changes,
+and planned demonstration segments. It records the weekly commit
+deficiencies and distinguishes the current snapshot from the deadline.
+The student requested this text edition. Video URLs, timestamps,
+account-derived cost figures, and live-model evidence remain pending.
+
+Updated implementation class, use-case, and sequence diagrams are in
+Stage2/UML. config.example.json and ignored config.local.json provide
+local key setup with environment-variable precedence. Three additional
+configuration tests passed, bringing the JUnit total to 28/28. The
+offline KUMA suite remains 11/11 and judge regression tests 4/4.

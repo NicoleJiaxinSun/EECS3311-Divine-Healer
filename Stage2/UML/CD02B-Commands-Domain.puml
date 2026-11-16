@@ -1,0 +1,99 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Implemented classes - commands, domain, and observers
+interface GameCommand {
+execute(state): ActionResult
+}
+class CommandFactory {
+{static} +parse(input): Action
+}
+class CommandExecutor {
+listeners: List<GameEventListener>
+execute(state, action, command)
+}
+class InspectCommand {
+householdId
+execute(state)
+}
+class TalkCommand {
+npcId
+evidenceId
+execute(state)
+{static} +requestAppointment(state)
+}
+class AllocateCommand {
+quantity
+recipient
+execute(state)
+}
+class IssueOrderCommand {
+step: Step
+execute(state)
+}
+class GameState {
+reliefOfficer: boolean
+correctionOrder: Status
+recordEvidence(id, finding)
+appointReliefOfficer()
+}
+class NPC {
+knownEvidence: Set<String>
+strategy: NegotiationStrategy
+negotiate()
+learn(evidenceId)
+}
+interface NegotiationStrategy {
+evaluate(knownEvidence): ActionResult
+}
+class Inventory {
+grain: int
+millGrainDelivered: int
+allocateGrainToMill(quantity)
+}
+class LaborRegister {
+entries
+publicRecords
+inspect(householdId)
+correctMillCharge()
+}
+class ActionResult <<record>> {
+success: boolean
+message: String
+}
+interface GameEventListener {
+onGameEvent(state, action, result)
+}
+class HistoryRecorder {
+onGameEvent(state, action, result)
+history()
+recordedActions()
+}
+class EventManager {
+onGameEvent(state, action, result)
+abandonActive()
+}
+CommandFactory ..> GameCommand : creates
+InspectCommand ..|> GameCommand
+TalkCommand ..|> GameCommand
+AllocateCommand ..|> GameCommand
+IssueOrderCommand ..|> GameCommand
+CommandExecutor --> GameCommand : invokes
+CommandExecutor o-- "2" GameEventListener
+HistoryRecorder ..|> GameEventListener
+EventManager ..|> GameEventListener
+GameCommand ..> ActionResult
+GameCommand ..> GameState
+GameState *-- "2" NPC
+GameState *-- Inventory
+GameState *-- LaborRegister
+NPC --> NegotiationStrategy : lambda policies
+
+@enduml

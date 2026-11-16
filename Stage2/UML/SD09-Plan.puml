@@ -1,0 +1,44 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam dpi 150
+
+title Current planning and approval flow
+actor Player
+participant GameSession as Session
+participant GameAgent as Agent
+participant LLMClient as LLM
+participant CommandFactory as Factory
+participant AgentPlan as Plan
+participant GameController as Controller
+Player -> Session : run("goal ...")
+Session -> Agent : draft(goal)
+Agent -> LLM : generate(instructions, visible context)
+LLM --> Agent : JSON steps
+loop every proposed step
+Agent -> Agent : parsePlanStep(step)
+Agent -> Factory : parse(step)
+Factory --> Agent : validated Action
+end
+Agent -> Plan : new AgentPlan(actions)
+Agent --> Player : DRAFT and numbered steps
+Player -> Session : run("plan approve")
+Session -> Agent : plan("approve")
+Agent -> Plan : approve()
+Player -> Session : run("plan run")
+Session -> Agent : plan("run")
+Agent -> Plan : run(controller)
+loop remaining steps until refusal
+Plan -> Controller : execute(step)
+Controller --> Plan : ActionResult
+end
+Plan --> Player : COMPLETED or PAUSED
+note right of Plan : A refused step retains the cursor.\nA retry requires approval.
+
+
+@enduml
