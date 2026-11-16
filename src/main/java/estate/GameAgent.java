@@ -115,6 +115,8 @@ final class GameAgent {
         }
         String instructions = ACTIONS + " Return between 1 and " + limit + " steps for a supported request.";
         String context = "Visible status: " + controller.status()
+                + "\nDiscovered evidence:\n" + String.join("\n", controller.evidence())
+                + "\nCurrent story events:\n" + String.join("\n", controller.events())
                 + "\nRecent action records:\n" + recentHistory(controller.history())
                 + "\nPlayer request: " + input;
         JsonObject response = client.generate(instructions, context);

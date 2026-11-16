@@ -145,8 +145,9 @@ recap
 - F11: `recap` summarizes up to 12 recent action records. `history` remains
   available when the AI call fails.
 
-The AI commands send the request, visible game status, and recent action
-records as context where applicable. The course's KUMA validation remains to be completed.
+AI action and plan requests include visible game status, discovered
+evidence, current story events, and up to 12 recent action records.
+Recap uses up to 12 recent action records. The course's KUMA validation remains to be completed.
 
 ## Swing desktop interface
 

@@ -184,3 +184,17 @@ plans. They verify that restoring a plan does not run it, that finished
 plans cannot be approved again, and that inconsistent completion or
 cursor data is rejected while preserving the active game history.
 The expanded Maven JUnit suite passed 24/24.
+
+## Long-history planning context
+
+A regression test showed that after 13 later actions, the AI request
+contained neither the original evidence finding nor the current event
+states. Action and plan prompts now include the player's discovered
+evidence and current story events alongside the latest 12 history entries.
+
+The new test records evidence, advances the first event, and moves those
+actions outside the history window. It then verifies the model input
+still includes the evidence and event states, while drafting leaves
+game history and rank intact. The test failed before the change and
+passed afterward. The full Maven JUnit suite passed 25/25. This test
+checks the supplied context using a fixed model response.
