@@ -42,7 +42,7 @@ Class names below refer to Java files under
 | F05 / UC05 · Resource allocation | AllocateCommand, Inventory | The relief officer can deliver grain to the mill within available stock. | GameRulesTest · authority and stock, BT-06 |
 | F06 / UC06 · Official orders | IssueOrderCommand, GameRules, LaborRegister | IssueOrderCommand checks authority and advances one correction order from request to approval to execution. LaborRegister applies the correction. | GameRulesTest · order lifecycle |
 | F07 / UC07 · Political appointment | TalkCommand, NPC, PoliticalSystem, GameState | TalkCommand requests the relief appointment using the steward's evidence condition and updates GameState on acceptance. | GameRulesTest · appointment |
-| F08 / UC08 · Political events | EventManager, PoliticalEvent, EventState, GameRules | EventManager tracks four milestones, checks goals from game state, and retains resolved or failed outcomes. | GameRulesTest · milestone order and failure |
+| F08 / UC08 · Political events | EventManager, PoliticalEvent, EventState, GameRules | EventManager sequences four PoliticalEvent instances. EventState implementations control activation, resolution, and failure. | GameRulesTest · milestone order and failure |
 | F09 / UC09 · AI plan generation | GameController, AgentPlanner, LLMClient, AgentPlan | GameAgent drafts up to eight allowed commands. AgentPlan holds one current plan. | BT-05–06 |
 | F10 / UC10 · Approved execution | GameController, AgentExecutor, AgentPlan, CommandExecutor | AgentPlan calls the shared executor through GameController and pauses on the first refused step. | BT-05–06, GamePersistenceTest · plan resume |
 | F11 / UC11 · History and recap | HistoryRecorder, GameController, LLMClient | HistoryRecorder stores game action outcomes. GameAgent requests a recap of up to 12 recent entries. | GameRulesTest · action history, BT-07, BT-09 |
@@ -58,9 +58,9 @@ Class names below refer to Java files under
 - **Game rules and event states.** Stage 1 proposed a central `GameRules`
   class, a separate political listener, and concrete event state classes.
   The current scenario uses local command and domain guards, an
-  evidence-based appointment in `TalkCommand`, and event enums with goal
-  predicates. This represents the current four milestones without a class
-  per event state.
+  evidence-based appointment in `TalkCommand`, and `PoliticalEvent` with
+  goal predicates. `EventState` now has four concrete implementations
+  matching the designed lifecycle. `EventManager` controls the sequence.
 - **Persistence.** The design called for restoring domain data. The
   implementation rebuilds it by replaying recorded commands into a fresh
   controller and restores the plan separately. This reuses the rules for
@@ -210,3 +210,17 @@ display from the restored session.
 A desktop smoke check opened the window and verified automatic refresh
 after appointment, grain delivery, a refused allocation, order execution,
 and loading a prior save.
+
+## Event State pattern alignment
+
+The event lifecycle now uses the Stage 1 roles PoliticalEvent and
+EventState. LockedState permits activation. ActiveState decides whether
+the goal is met or the event fails. ResolvedState and FailedState retain
+their endings. These stateless implementations use enum singletons.
+Each PoliticalEvent owns its current state, title, and goal predicate.
+EventManager activates events in sequence and checks newly unlocked
+goals against the current game state.
+
+The existing JUnit suite passed 25/25, including event sequencing,
+failed endings, and restoration of prior event outcomes from saves.
+The offline KUMA suite passed 11/11.

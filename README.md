@@ -215,3 +215,12 @@ summarizes the evaluation results and remaining live checks.
 
 To retain the commands, actual responses, and case judgments from a
 KUMA run, append `--report out/kuma-results.json` to its command.
+
+## Implemented design patterns
+
+- Command routes player actions through GameCommand and CommandExecutor.
+- Adapter isolates DeepSeek behind LLMClient.
+- Strategy supplies NPC negotiation decisions.
+- Observer sends action results to EventManager and HistoryRecorder.
+- State delegates event transitions to LockedState, ActiveState,
+  ResolvedState, and FailedState through EventState.
