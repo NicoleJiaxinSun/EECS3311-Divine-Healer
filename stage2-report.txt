@@ -42,8 +42,8 @@ The submitted scenario implements 12 Stage 1 feature entries. The scenario is
 intentionally small, with the steward and healer, a public mill record, a restricted
 manor record, 10 starting grain, one relief recipient, and one correction order. These
 concrete values and scope choices are documented below. Typed game behavior has been
-exercised. Live DeepSeek behavior is unverified because no valid key was available for
-the recorded runs.
+exercised. Live DeepSeek behavior remains unverified. The first configured run
+returned HTTP 402 (insufficient account balance) in all six cases.
 
 Build and entry points
   JDK 17 or newer and Maven 3.9 or newer. Run mvn test, mvn compile exec:exec for CLI,
