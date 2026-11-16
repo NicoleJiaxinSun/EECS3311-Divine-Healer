@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -96,6 +98,54 @@ class GamePersistenceTest {
             Files.writeString(saveFile, invalid);
             assertTrue(game.run("load " + saveFile).get(0).startsWith("Load failed:"), invalid);
             assertEquals(plan, game.run("plan show"));
+            assertEquals(history, game.run("history"));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"DRAFT", "PAUSED", "COMPLETED", "CANCELED"})
+    void preservesPlanLifecycleAcrossSaveAndLoad(String status) {
+        Path saveFile = directory.resolve(status + ".json");
+        String steps = status.equals("PAUSED")
+                ? "{\"steps\":[\"inspect mill\",\"allocate 3 mill\"]}"
+                : "{\"steps\":[\"inspect mill\"]}";
+        GameSession original = new GameSession((instructions, input) ->
+                JsonParser.parseString(steps).getAsJsonObject());
+        original.run("goal inspect the mill");
+        if (status.equals("PAUSED") || status.equals("COMPLETED")) {
+            original.run("plan approve");
+            original.run("plan run");
+        }
+        if (status.equals("CANCELED")) {
+            original.run("plan cancel");
+        }
+        var plan = original.run("plan show");
+        assertEquals("Plan: " + status, plan.get(0));
+        assertTrue(original.run("save " + saveFile).get(0).startsWith("Game saved:"));
+
+        GameSession restored = offlineSession();
+        assertTrue(restored.run("load " + saveFile).get(0).startsWith("Game loaded:"));
+        assertEquals(plan, restored.run("plan show"));
+        var history = restored.run("history");
+        assertTrue(restored.run("plan run").get(0).startsWith("Approve"));
+        assertEquals(history, restored.run("history"));
+        if (status.equals("COMPLETED") || status.equals("CANCELED")) {
+            assertTrue(restored.run("plan approve").get(0).startsWith("Only a draft or paused"));
+        }
+    }
+
+    @Test
+    void rejectedPlanCursorPreservesTheCurrentGame() throws IOException {
+        Path file = directory.resolve("invalid-progress.json");
+        GameSession game = offlineSession();
+        game.run("inspect mill");
+        var history = game.run("history");
+        for (String plan : List.of(
+                "{\"steps\":[\"inspect mill\"],\"status\":\"COMPLETED\",\"nextStepIndex\":0}",
+                "{\"steps\":[\"inspect mill\"],\"status\":\"DRAFT\",\"nextStepIndex\":1}",
+                "{\"steps\":[\"inspect mill\"],\"status\":\"PAUSED\",\"nextStepIndex\":2}")) {
+            Files.writeString(file, "{\"version\":1,\"actions\":[],\"plan\":" + plan + "}");
+            assertTrue(game.run("load " + file).get(0).startsWith("Load failed:"));
             assertEquals(history, game.run("history"));
         }
     }

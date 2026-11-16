@@ -176,3 +176,11 @@ BT-11 injects a provider outage and checks that both NPC results remain
 available. Rank stays visitor during both cases. The expanded offline
 suite passed 11/11 and the judge regression suite passed 4/4. Live
 dialogue text still requires a run with valid DeepSeek credentials.
+
+## Plan lifecycle persistence verification
+
+Additional save/load tests cover draft, paused, completed, and canceled
+plans. They verify that restoring a plan does not run it, that finished
+plans cannot be approved again, and that inconsistent completion or
+cursor data is rejected while preserving the active game history.
+The expanded Maven JUnit suite passed 24/24.
