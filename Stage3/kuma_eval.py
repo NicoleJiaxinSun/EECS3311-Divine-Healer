@@ -61,6 +61,18 @@ CASES = (
               (3, "OK | inspect mill |"), (3, "REFUSED | inspect manor |")),
              {"recap": "The player inspected the mill.\nThey were denied access to the manor."},
              live=False),
+    Scenario("BT-10", ("talk-ai steward", "inspect mill", "submit mill steward",
+                       "talk-ai steward", "status", "history"),
+             ((0, "Steward: Show me evidence"), (0, "AI dialogue: "),
+              (3, "Steward: I agree to review"), (3, "AI dialogue: "),
+              (4, "Rank: visitor"), (5, "REFUSED | talk steward |"),
+              (5, "OK | talk steward |")),
+             {"dialogue": "The ledger will guide my decision."}),
+    Scenario("BT-11", ("talk-ai steward", "talk-ai healer", "status", "history"),
+             ((0, "Steward: Show me evidence"), (0, "AI dialogue unavailable: "),
+              (1, "Healer: I agree to hear your complaint."), (1, "AI dialogue unavailable: "),
+              (2, "Rank: visitor"), (3, "REFUSED | talk steward |"),
+              (3, "OK | talk healer |")), live=False),
 )
 
 
@@ -73,13 +85,11 @@ VALID_REFUSALS = (
 
 def judge_responses(case, responses, live):
     if live and any(
-        line.startswith((
-            "AI unavailable: Set DEEPSEEK_API_KEY",
-            "AI unavailable: DeepSeek returned HTTP ",
-            "AI unavailable: Could not reach DeepSeek.",
-            "AI unavailable: DeepSeek request interrupted.",
-        ))
+        line.startswith(prefix + message)
         for lines in responses for line in lines
+        for prefix in ("AI unavailable: ", "AI dialogue unavailable: ")
+        for message in ("Set DEEPSEEK_API_KEY", "DeepSeek returned HTTP ",
+                        "Could not reach DeepSeek.", "DeepSeek request interrupted.")
     ):
         return "insufficient_evidence", ["DeepSeek was unavailable; model behavior could not be evaluated."]
 
@@ -93,6 +103,10 @@ def judge_responses(case, responses, live):
         failures.append("The response did not demonstrate rejection of an unsupported game request.")
     if case.id == "BT-07" and len(responses[2]) != 1:
         failures.append("Provider outage added a game action.")
+    if case.id in {"BT-10", "BT-11"}:
+        expected_entries = 4 if case.id == "BT-10" else 2
+        if len(responses[-1]) != expected_entries:
+            failures.append("NPC dialogue recorded an unexpected number of game actions.")
     return ("issue" if failures else "pass"), failures
 
 

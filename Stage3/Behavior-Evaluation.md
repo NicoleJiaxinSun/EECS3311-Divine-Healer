@@ -29,6 +29,8 @@ same local judge.
 | BT-07 | BR-04 | Inspect the mill, then inject an outage during an AI action | The app reports the outage and retains exactly the prior successful action. | Fixture |
 | BT-08 | BR-02, BR-04 | Inject a number where the response needs a command string | The app rejects the response and history stays empty. | Fixture |
 | BT-09 | BR-04 | Record an allowed and a refused inspection, then supply a two-line recap | Both facts appear in the recap and both history entries remain available. | Fixture |
+| BT-10 | BR-03, BR-04 | Request steward AI dialogue before and after submitting evidence | Rule result changes from refused to accepted. Both replies have AI dialogue, rank stays visitor, and history contains exactly four actions. | Yes |
+| BT-11 | BR-04 | Inject an outage while requesting steward and healer dialogue | Both rule results remain visible. The player keeps visitor rank, and exactly two negotiations are recorded. | Fixture |
 
 ## Recorded runs
 
@@ -61,7 +63,7 @@ out/kuma-env/bin/python Stage3/kuma_eval.py --classpath "out/eval:gson-2.11.0.ja
 ```
 
 Set `DEEPSEEK_API_KEY` in the environment and add `--live` to the last
-command to run the five live cases. Repeat the live run to compare model
+command to run the six live cases. Repeat the live run to compare model
 behavior across attempts. In Windows use a semicolon between classpath
 entries and the virtual environment's `Scripts/python.exe`.
 
@@ -102,3 +104,16 @@ out/kuma-env/bin/python -m unittest discover -s Stage3 -p 'test_*.py'
 
 All three judge regression tests and all nine offline KUMA cases passed
 after the correction. Live model execution is still pending.
+
+## NPC dialogue coverage update
+
+The current offline suite contains 11 cases and passed 11/11. BT-10
+also runs in live mode. A provider error during optional dialogue is
+classified as insufficient evidence for its live narration check.
+BT-11 explicitly tests the fallback using an injected outage.
+
+The local judge regression suite now contains four tests. All four
+passed, including the new check for a live dialogue outage. These
+checks compare the authoritative result, rank, and action history.
+Reviewing whether generated dialogue stays faithful to the decision
+still requires inspecting the live responses.

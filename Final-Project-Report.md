@@ -119,7 +119,7 @@ separately exposed a failure that a single happy-path demonstration would
 have missed. The authority and plan checks also show which safeguards
 can be tested without depending on model behavior.
 
-Five cases are configured for live DeepSeek testing. No
+Six cases are configured for live DeepSeek testing. No
 `DEEPSEEK_API_KEY` was configured in the evaluation environment, so live
 model behavior remains unverified. The [README](README.md) explains how
 to run both interfaces and the test suite. The
@@ -166,3 +166,13 @@ resolves the dependencies and writes JUnit reports under
 A CLI smoke check through `mvn compile exec:exec` verified inspection,
 history display, and clean exit. The Swing main-class override was
 verified using its headless-environment message.
+
+## NPC dialogue behavior coverage
+
+KUMA now covers optional NPC dialogue in addition to action proposals,
+plans, and recap. BT-10 checks the steward's refusal before evidence and
+acceptance after submission, with exactly one history entry per action.
+BT-11 injects a provider outage and checks that both NPC results remain
+available. Rank stays visitor during both cases. The expanded offline
+suite passed 11/11 and the judge regression suite passed 4/4. Live
+dialogue text still requires a run with valid DeepSeek credentials.

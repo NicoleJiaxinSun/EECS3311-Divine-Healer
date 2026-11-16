@@ -35,6 +35,11 @@ class JudgeTest(unittest.TestCase):
                 self.assertEqual("issue", judge_responses(
                     case, [reply, ["OK | inspect mill | Evidence discovered"]], live=True)[0])
 
+    def test_live_dialogue_outage_is_insufficient_evidence(self):
+        case = next(case for case in CASES if case.id == "BT-10")
+        responses = [["AI dialogue unavailable: DeepSeek returned HTTP 503."]]
+        self.assertEqual("insufficient_evidence", judge_responses(case, responses, live=True)[0])
+
     def test_malformed_model_reply_is_a_behavior_issue(self):
         case = next(case for case in CASES if case.id == "BT-02")
         status, details = judge_responses(

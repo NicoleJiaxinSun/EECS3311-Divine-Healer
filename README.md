@@ -202,7 +202,7 @@ DeepSeek adapter tests use an HTTP server on the local loopback address.
 ## Stage 3 - KUMA behavior evaluation
 
 See the [behavior evaluation](Stage3/Behavior-Evaluation.md) for the
-requirements, nine offline scenarios, baseline and retest results, and
+requirements, eleven offline scenarios, baseline and retest results, and
 the command to run the live DeepSeek cases.
 
 ## Final project report
