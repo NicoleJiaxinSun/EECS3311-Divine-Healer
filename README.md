@@ -159,7 +159,8 @@ java -cp "out:gson-2.11.0.jar" estate.GameGUI
 
 Choose **Command** and enter a command such as `inspect mill` or
 `submit mill steward`. Use the shortcuts for status, evidence, events,
-history, and plan controls. Choose **AI action** or **AI goal** to enter
+history, and plan controls. The current rank, grain stock, delivered grain, and order status
+stay visible and refresh after operations and loading a save. Choose **AI action** or **AI goal** to enter
 natural-language text. The window uses the same game rules and API key
 configuration as the CLI, with a separate game session each time it starts.
 

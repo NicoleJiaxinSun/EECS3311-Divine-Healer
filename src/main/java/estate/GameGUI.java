@@ -22,11 +22,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 public final class GameGUI {
+    private record CommandOutput(List<String> lines, String status) {}
+
     private final GameSession session = new GameSession(
             new DeepSeekAdapter(System.getenv("DEEPSEEK_API_KEY")));
     private final JTextArea output = new JTextArea(22, 72);
     private final JTextField input = new JTextField();
     private final JComboBox<String> mode = new JComboBox<>(new String[] {"Command", "AI action", "AI goal"});
+    private final JTextArea status = new JTextArea(2, 72);
     private final JLabel activity = new JLabel("Ready");
     private final List<JButton> buttons = new ArrayList<>();
     private boolean busy;
@@ -75,7 +78,14 @@ public final class GameGUI {
         addButton(entry, "Send", this::submit, BorderLayout.EAST);
 
         JPanel footer = new JPanel(new BorderLayout(0, 6));
-        footer.add(entry, BorderLayout.NORTH);
+        status.setEditable(false);
+        status.setLineWrap(true);
+        status.setWrapStyleWord(true);
+        status.setOpaque(false);
+        status.getAccessibleContext().setAccessibleName("Current game status");
+        status.setText(session.run("status").get(0));
+        footer.add(status, BorderLayout.NORTH);
+        footer.add(entry, BorderLayout.CENTER);
         footer.add(activity, BorderLayout.SOUTH);
         content.add(footer, BorderLayout.SOUTH);
 
@@ -138,16 +148,19 @@ public final class GameGUI {
         }
         append("> " + command);
         setBusy(true);
-        new SwingWorker<List<String>, Void>() {
+        new SwingWorker<CommandOutput, Void>() {
             @Override
-            protected List<String> doInBackground() {
-                return work.get();
+            protected CommandOutput doInBackground() {
+                List<String> lines = work.get();
+                return new CommandOutput(lines, session.run("status").get(0));
             }
 
             @Override
             protected void done() {
                 try {
-                    get().forEach(GameGUI.this::append);
+                    CommandOutput result = get();
+                    result.lines().forEach(GameGUI.this::append);
+                    status.setText(result.status());
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
                     append("Command interrupted.");

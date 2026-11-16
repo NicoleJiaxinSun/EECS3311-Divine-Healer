@@ -198,3 +198,15 @@ still includes the evidence and event states, while drafting leaves
 game history and rank intact. The test failed before the change and
 passed afterward. The full Maven JUnit suite passed 25/25. This test
 checks the supplied context using a fixed model response.
+
+## Desktop status display
+
+The Swing window now keeps rank, grain stock, delivered grain, and
+correction order status visible below the output. Each completed
+operation reads its status on the same background worker, then updates
+the display on the Swing event thread. Successful loads refresh the
+display from the restored session.
+
+A desktop smoke check opened the window and verified automatic refresh
+after appointment, grain delivery, a refused allocation, order execution,
+and loading a prior save.
