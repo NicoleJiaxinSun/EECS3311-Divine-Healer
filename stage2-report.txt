@@ -1243,3 +1243,13 @@ Verify the live DeepSeek behavior. Supply measured development token and monetar
 from account records. Review the source and report personally, and submit the repository
 URL through the course system. Confirm the course's acceptance of late changes and the
 requested report format.
+
+First live-provider verification attempt - November 15, 2026
+===========================================================
+
+A local key was configured and all six live KUMA cases were run.
+Every model request returned HTTP 402, documented by DeepSeek as
+insufficient account balance. All six cases are insufficient evidence.
+The JSON evidence is at Stage3/results/deepseek-live-2026-11-15.json.
+Successful model behavior must be verified after the API account has
+sufficient balance. No credentials are included in that evidence.

@@ -41,7 +41,7 @@ same local judge.
 | JUnit regression run | 9/9 passed. |
 | Later JUnit regression with local HTTP adapter checks | 14/14 passed. |
 | Later KUMA offline regression | 9/9 passed. |
-| DeepSeek live cases | Pending. This run had no configured DeepSeek key. |
+| First DeepSeek live run, November 15 | 0/6 passed; all 6 insufficient evidence because requests returned HTTP 402. |
 
 BT-09 exposed an output-format failure. A fixture returned two valid
 recap sentences separated by a newline. The application showed
@@ -117,3 +117,17 @@ passed, including the new check for a live dialogue outage. These
 checks compare the authoritative result, rank, and action history.
 Reviewing whether generated dialogue stays faithful to the decision
 still requires inspecting the live responses.
+
+## First live-provider attempt - November 15, 2026
+
+A local API key was configured and the six live cases were executed.
+Every model request returned HTTP 402. DeepSeek documents this response
+as insufficient account balance. KUMA classified all six cases as
+insufficient evidence. No successful model completion was obtained,
+and model behavior remains unverified.
+
+The [run evidence](results/deepseek-live-2026-11-15.json) includes the
+application replies, retained history, and local judge outcomes. It
+contains no credentials. Replenish the API account balance before
+repeating the live suite. The run is evidence of provider-unavailable
+handling and does not establish a model behavior pass.

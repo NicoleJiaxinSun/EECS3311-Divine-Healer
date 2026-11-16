@@ -119,9 +119,10 @@ separately exposed a failure that a single happy-path demonstration would
 have missed. The authority and plan checks also show which safeguards
 can be tested without depending on model behavior.
 
-Six cases are configured for live DeepSeek testing. No
-`DEEPSEEK_API_KEY` was configured in the evaluation environment, so live
-model behavior remains unverified. The [README](README.md) explains how
+Six cases are configured for live DeepSeek testing. Earlier local runs
+had no configured key. The first configured attempt on November 15
+returned HTTP 402 in every model request, so live model behavior
+remains unverified. The [README](README.md) explains how
 to run both interfaces and the test suite. The
 [behavior evaluation](Stage3/Behavior-Evaluation.md) records the local
 results and the live run command.
@@ -239,3 +240,12 @@ Stage2/UML. config.example.json and ignored config.local.json provide
 local key setup with environment-variable precedence. Three additional
 configuration tests passed, bringing the JUnit total to 28/28. The
 offline KUMA suite remains 11/11 and judge regression tests 4/4.
+
+
+## First configured DeepSeek run
+
+All six live KUMA cases ran with a local key on November 15. DeepSeek
+returned HTTP 402 (insufficient account balance), producing six
+insufficient-evidence outcomes. The recorded run is in
+Stage3/results/deepseek-live-2026-11-15.json. Successful model
+verification remains pending account funding.
